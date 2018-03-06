@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Welcome Back - Programming Competition</title>
+  </head>
+
+  <body>
+    <a href="/">&lt;&lt;&lt; Back</a><br /><br />
+    Username: <input id="username" type="text" placeholder="If you have already submitted with a username, be sure to use the same one" /><br /><br />
+    Code: <textarea id="code"></textarea><br /><br />
+    Language: <select id="language">%s</select><br /><br />
+    Problem: <select id="problem">%s</select><br /><br />
+    <button onclick="submit()">Submit!</button>
+  </body>
+
+  <script type="text/javascript">
+    function submit() {
+      var username = document.getElementById("username").value;
+      var code = document.getElementById("code").value;
+      var language = document.getElementById("language").value;
+      var problem = document.getElementById("problem").value;
+      var json = {
+        username: username,
+        code: code,
+        language: language,
+        problem: problem
+      };
+      fetch("/submit/" + btoa(JSON.stringify(json)).replace("/", ".")).then(function(response) {
+        return response.text();
+      }).then(function(text) {
+        location.replace(text);
+      });
+    }
+  </script>
+
+  <style type="text/css">
+    body, button, select, option, input {
+      font-family: monospace;
+    }
+
+    input, textarea {
+      font-size: 12px;
+      width: 80%%;
+    }
+  </style>
+</html>

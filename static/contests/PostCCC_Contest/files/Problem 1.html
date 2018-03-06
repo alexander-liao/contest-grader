@@ -1,0 +1,39 @@
+<!-- Problem 1: Happy or Sad? -->
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Happy or Sad?</title>
+    </head>
+
+    <body>
+        <code><a href="/">&lt;&lt;&lt; Back</a>&nbsp;&nbsp;<a href="/enter_submission">Submit &gt;&gt;&gt;</a></code>
+        <h1>Problem 1: Happy or Sad?</h1>
+        <p>On the most recent CCC, Keenan was unsure of whether or not his score of 54 would be enough to get him into CCO. Your task is to take a list of scores and Keenan's score and see if he will get into CCO, which takes the top 20 CCC participants.</p>
+        <h3>Input Specifications</h3>
+        <p>
+            The first line will contain a single integer N, the number of participants in this year's CCC.<br />
+            The next line will contain N space-separated integers L, representing the scores of all participants, not including Keenan.<br />
+            The last line will contain a single integer K, Keenan's score.
+        </p>
+        <h3>Output Specifications</h3>
+        <p>
+            Output will consist of a single line containing <code>Keenan is happy!</code> if K is smaller than at most 19 elements of L and <code>Keenan is sad.</code> otherwise.
+        </p>
+        <h3>Subtasks</h3>
+        For all of the points, <code>20 &le; N &le; 100 000</code>
+        <h3>Sample Input</h3>
+        <table><tr><td><code>20<br />1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20<br />1</code></td></tr></table>
+        <h3>Sample Output</h3>
+        <table><tr><td><code>Keenan is happy!</code></td></tr></table>
+        <h3>Sample Input</h3>
+        <table><tr><td><code>30<br />11 67 19 55 63 26 35 46 48 30 21 65 55 7 59 67 2 23 20 42 42 26 50 25 36 25 48 64 49 20<br />25</code></td></tr></table>
+        <h3>Sample Output</h3>
+        <table><tr><td><code>Keenan is sad.</code></td></tr></table>
+    </body>
+
+    <style>
+        table {
+            border: 1px solid black;
+        }
+    </style>
+</html>
