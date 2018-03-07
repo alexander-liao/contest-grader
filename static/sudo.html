@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SUDO</title>
+    <script src="js-sha"></script>
+  </head>
+
+  <body>
+    <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" />
+    <button onclick="clear_leaderboard()">Clear Leaderboard</button>
+    <button onclick="kick_leaderboard()">Kick a user from Leaderboard</button>
+    <button onclick="set_contest()">Set contest</button>
+    <button onclick="contest_mode('stop')">Stop contest</button>
+    <button onclick="contest_mode('start')">Start contest</button>
+  </body>
+
+  <script>
+    function sudoID() {
+      var text = document.getElementById("pwd").value;
+      var jSha = new jsSHA("SHA-256", "TEXT");
+      jSha.update(text);
+      return jSha.getHash("HEX");
+    }
+
+    function clear_leaderboard() {
+      if (confirm("Are you sure you want to clear the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/clear_leaderboard/" + sudoID());
+      }
+    }
+
+    function kick_leaderboard() {
+      var name = prompt("Please enter the name of the user you wish to remove");
+      if (confirm("Are you sure you want to kick '" + name + "' from the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/kick_leaderboard/" + btoa(name).replace("/", "-") + "/" + sudoID());
+      }
+    }
+
+    function set_contest() {
+      var name = prompt("Please enter the name of the contest you wish to set");
+      if (confirm("Are you sure you want to set the contest to '" + name + "'")) {
+          fetch("/set_contest/" + btoa(name).replace("/", "-") + "/" + sudoID());
+        }
+    }
+
+    function contest_mode(mode) {
+      if (confirm("Are you sure you want to " + mode + " the contest?")) {
+        fetch("/" + mode + "_contest/" + sudoID());
+      }
+    }
+  </script>
+</html>

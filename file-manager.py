@@ -1,10 +1,18 @@
 from flask import Flask
 from flask_cors import CORS
 
-import json, sys, os
+import json, sys, os, base64
 
 app = Flask(__name__)
 CORS(app)
+
+@app.route("/set_contest/<contestname>/<userhash>")
+def set_contest(contestname, userhash):
+    print(base64.b64decode(contestname.replace("-", "/")))
+    if userhash == serverhash:
+        with open("static/contest.txt", "w") as f:
+            f.write("".join(map(chr, base64.b64decode(contestname.replace("-", "/")))))
+    return ""
 
 @app.route("/current-contest")
 def getCurrentContest():
@@ -15,8 +23,19 @@ def contestIsOngoing():
     return getCurrentContest() != ""
 
 @app.route("/problems")
+def serveProblems():
+    return json.dumps(getProblems())
+
 def getProblems():
-    return json.dumps(sorted(os.listdir("static/contests/%s/files" % getCurrentContest())))
+    try:
+        return sorted(os.listdir("static/contests/%s/files" % getCurrentContest()))
+    except:
+        return []
+
+@app.route("/problem/<int:id>")
+def problem(id):
+    with open("static/contests/%s/files/" % getCurrentContest() + getProblems()[id], "r") as f:
+        return f.read()
 
 def fullname(filename):
     with open("static/contests/%s/files/" % getCurrentContest() + filename, "r") as f:
@@ -24,7 +43,7 @@ def fullname(filename):
 
 @app.route("/fullnames")
 def getFullNames():
-    return json.dumps(list(map(fullname, json.loads(getProblems()))))
+    return json.dumps(list(map(fullname, getProblems())))
 
 @app.route("/data/<name>")
 def getData(name):
@@ -45,4 +64,8 @@ if __name__ == "__main__":
             port = 6000
     else:
         port = 6000
+    if len(sys.argv) >= 3 and not sys.argv[2].startswith("--"):
+        serverhash = sys.argv[2]
+    else:
+        serverhash = "7d509328bd69ef7406baf28bd9897c0bf724d8d716b014d0f95f2e8dd9c43a06"
     app.run(host = "0.0.0.0", port = port)

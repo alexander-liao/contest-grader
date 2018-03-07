@@ -13,6 +13,8 @@ from time import time
 
 users = {}
 
+running = True
+
 def grade(command, tests, cwd):
     for suite_num, (points, i_suite, o_suite) in enumerate(zip(tests["points"], tests["inputs"], tests["outputs"])):
         yield (0, suite_num, points)
@@ -124,9 +126,9 @@ def process_submission(username, code, language, problem):
     return "/submission/%d" % id
 
 def get_sorted_users():
-    return sorted(list(users), key = lambda u: sum(users[u]))
+    return sorted(list(users), key = lambda u: sum(users[u]), reverse = True)
 
-prefix = "http://e6b3c859.ngrok.io/"
+prefix = "http://b9ae12fd.ngrok.io/"
 
 def getProblems():
     return json.loads(requests.get(prefix + "problems").text)
@@ -136,21 +138,70 @@ def getFullNames():
 
 @app.route("/")
 def serveRoot():
+    if not running: return "<h2>Contest is currently paused...</h2>"
     with open("static/index.html", "r") as f:
         return f.read() % (("<br />".join("<a href='/problem/%d'>%s</a>" % (i, getFullNames()[i]) for i in range(len(getProblems())))) or "There are currently no problems.")
 
+@app.route("/sudo")
+def sudo():
+    with open("static/sudo.html", "r") as f:
+        return f.read()
+
+@app.route("/js-sha")
+def js_sha():
+    with open("static/jsSHA-2.3.1/src/sha.js", "r") as f:
+        return f.read()
+
+@app.route("/clear_leaderboard/<userhash>")
+def clear_leaderboard(userhash):
+    global users
+    if userhash == serverhash:
+        users = {}
+    return ""
+
+@app.route("/kick_leaderboard/<username>/<userhash>")
+def kick_leaderboard(username, userhash):
+    global users
+    if userhash == serverhash:
+        user = base64.b64decode(username.replace("-", "/"))
+        if user in users:
+            del users[user]
+    return ""
+
+@app.route("/stop_contest/<userhash>")
+def stop_contest(userhash):
+    global running
+    if userhash == serverhash:
+        running = False
+    return ""
+
+@app.route("/start_contest/<userhash>")
+def start_contest(userhash):
+    global running
+    if userhash == serverhash:
+        running = True
+    return ""
+
+@app.route("/set_contest/<contestname>/<userhash>")
+def set_contest(contestname, userhash):
+    if userhash == serverhash:
+        requests.get(prefix + "set_contest/" + contestname + "/" + userhash)
+    return ""
+
 @app.route("/problem/<int:id>")
 def problem(id):
-    with open("static/problems/%s" % getProblems()[id], "r") as f:
-        return f.read()
+    if not running: return "<h2>Contest is currently paused...</h2>"
+    return requests.get(prefix + "problem/" + str(id)).text
 
 @app.route("/leaderboard")
 def leaderboard():
+    if not running: return "<h2>Contest is currently paused...</h2>"
     return open("static/leaderboard.html", "r").read() % "".join(
         "<tr><td>%s</td><td>%d (%s)</td></tr>" % (user, sum(users[user]), " / ".join(map(str, users[user]))) for user in get_sorted_users())
 
 @app.route("/enter_submission")
 def enter_submission():
+    if not running: return "<h2>Contest is currently paused...</h2>"
     with open("static/template.html", "r") as f:
         return f.read() % (
             "".join(
@@ -162,10 +213,12 @@ def enter_submission():
 
 @app.route("/submit/<data>")
 def submit(data):
+    if not running: return "/"
     return process_submission(**json.loads(base64.b64decode(data.replace(".", "/"))))
 
 @app.route("/submission/<int:id>")
 def submission(id):
+    if not running: return "<h2>Contest is currently paused...</h2>"
     if id not in submissions:
         return "<p style='font-family:monospace'>Sorry, submission not found with that ID.</p>"
     return "<style>body{font-family: monospace;}</style><a href='/'>&lt;&lt;&lt; Back</a><br /><br /><a href='/enter_submission'>Resubmit</a><br /><br />Submitted by '%s' in %s for %s<br /><br />" % submissions[id][:3] + "<br />".join(submissions[id][3])
@@ -178,4 +231,8 @@ if __name__ == "__main__":
             port = 80
     else:
         port = 80
-    app.run(host = "0.0.0.0", port = port)
+    if len(sys.argv) >= 3 and not sys.argv[2].startswith("--"):
+        serverhash = sys.argv[2]
+    else:
+        serverhash = "7d509328bd69ef7406baf28bd9897c0bf724d8d716b014d0f95f2e8dd9c43a06"
+    app.run(host = "0.0.0.0", port = port, debug = "--debug" in sys.argv)
