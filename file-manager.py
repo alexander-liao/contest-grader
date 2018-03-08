@@ -38,7 +38,7 @@ def problem(id):
         return f.read()
 
 def fullname(filename):
-    with open("static/contests/%s/files/" % getCurrentContest() + filename, "r") as f:
+    with open("static/contests/%s/files/" % getCurrentContest() + filename, "r",encoding='utf8') as f:
         return f.read().split("\n")[0][5:-4]
 
 @app.route("/fullnames")

@@ -1,4 +1,4 @@
-import os, sys, threading, json, shutil, base64, requests, io
+import os, sys, threading, json, shutil, base64, requests, io, traceback, html
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -10,6 +10,7 @@ from threading import Thread
 from subprocess import *
 
 from time import time
+import subprocess
 
 users = {}
 
@@ -23,18 +24,19 @@ def grade(command, tests, cwd):
             if skip:
                 yield (5, test_num)
             else:
+                start = time()
                 try:
                     i, o = open(i, "r"), open(o, "r")
-                    start = time()
                     expected = o.read().strip()
                     actual = "".join(map(chr, check_output(command, cwd = cwd, stdin = i, stderr = sys.stdout, timeout = tests["timelimit"]))).strip()
                     if expected == actual:
                         yield (1, test_num, time() - start)
                     else:
                         yield (2, test_num, time() - start, expected, actual); skip = True
-                except TimeoutExpired:
+                except subprocess.TimeoutExpired:
                     yield (3, test_num, time() - start); skip = True
                 except:
+                    traceback.print_exc()
                     yield (4, test_num, time() - start); skip = True
         yield (6, (1 - skip) * points)
     yield (7,)
@@ -77,19 +79,27 @@ def do_tests(array, command, tests):
     return function
 
 name_to_command = {
-    "Python 3.6.2": ["python3 Main.py"],
-    "Python 2.7.13": ["python2 Main.py"],
-    "Java 1.8.0_161": ["javac Main.java", "java Main"],
-    "C++ 7.2.1": ["g++ Main.cpp -o a.out", "./a.out"],
-    "Ruby 2.4.3": ["ruby Main.rb"],
+    "Python 3.6.4": ["python3.6 Main.py"],
+    "Python 2.7.6": ["python2 Main.py"],
+    "Java 9.0.4": ["javac Main.java", "java Main"],
+    "C++ (g++) 4.8.4": ["g++ Main.cpp -o a.out", "./a.out"],
+    "Ruby 2.5.0": ["bash /home/cabox/workspace/contest-grader/ruby.sh"],
+    "Ruby 1.9.3p484": ["ruby Main.rb"],
+    "Haskell (GHC 7.6.3)": ["ghc -o Main Main.hs", "./Main"],
+    "COBOL (OpenCOBOL 1.1.0)": ["cobc -free -x -o Main Main.cbl", "./Main"],
+    "Kotlin 1.2.30 (SUPER SLOW)": ["/home/cabox/workspace/contest-grader/kotlinc/bin/kotlinc Main.kt -include-runtime -d Main.jar", "java -jar Main.jar"]
 }
 
 file_exts = {
-    "Python 3.6.2": ".py",
-    "Python 2.7.13": ".py",
-    "Java 1.8.0_161": ".java",
-    "C++ 7.2.1": ".cpp",
-    "Ruby 2.4.3": ".rb"
+    "Python 3.6.4": ".py",
+    "Python 2.7.6": ".py",
+    "Java 9.0.4": ".java",
+    "C++ 4.8.4": ".cpp",
+    "Ruby 2.5.0": ".rb",
+    "Ruby 1.9.3p484": ".rb",
+    "Haskell (GHC 7.6.3)": ".hs",
+    "COBOL (OpenCOBOL 1.1.0)": ".cbl",
+    "Kotlin 1.2.30 (SUPER SLOW)": ".kt"
 }
 
 def get_data(name):
@@ -128,7 +138,7 @@ def process_submission(username, code, language, problem):
 def get_sorted_users():
     return sorted(list(users), key = lambda u: sum(users[u]), reverse = True)
 
-prefix = "http://b9ae12fd.ngrok.io/"
+prefix = "http://127.0.0.1:6000/"
 
 def getProblems():
     return json.loads(requests.get(prefix + "problems").text)
@@ -163,9 +173,17 @@ def clear_leaderboard(userhash):
 def kick_leaderboard(username, userhash):
     global users
     if userhash == serverhash:
-        user = base64.b64decode(username.replace("-", "/"))
+        user = "".join(map(chr, base64.b64decode(username.replace("-", "/"))))
         if user in users:
             del users[user]
+    return ""
+
+@app.route("/set_user_points/<username>/<points>/<userhash>")
+def set_user_points(username, points, userhash):
+    global users
+    if userhash == serverhash:
+        user = "".join(map(chr, base64.b64decode(username.replace("-", "/"))))
+        users[user] = list(map(int, points.split("-")))
     return ""
 
 @app.route("/stop_contest/<userhash>")
@@ -195,9 +213,8 @@ def problem(id):
 
 @app.route("/leaderboard")
 def leaderboard():
-    if not running: return "<h2>Contest is currently paused...</h2>"
     return open("static/leaderboard.html", "r").read() % "".join(
-        "<tr><td>%s</td><td>%d (%s)</td></tr>" % (user, sum(users[user]), " / ".join(map(str, users[user]))) for user in get_sorted_users())
+        "<tr><td>%s</td><td>%d (%s)</td></tr>" % (html.escape(user), sum(users[user]), " / ".join(map(str, users[user]))) for user in get_sorted_users())
 
 @app.route("/enter_submission")
 def enter_submission():
@@ -214,11 +231,10 @@ def enter_submission():
 @app.route("/submit/<data>")
 def submit(data):
     if not running: return "/"
-    return process_submission(**json.loads(base64.b64decode(data.replace(".", "/"))))
+    return process_submission(**json.loads(base64.b64decode(data.replace(".", "/")).decode('utf-8')))
 
 @app.route("/submission/<int:id>")
 def submission(id):
-    if not running: return "<h2>Contest is currently paused...</h2>"
     if id not in submissions:
         return "<p style='font-family:monospace'>Sorry, submission not found with that ID.</p>"
     return "<style>body{font-family: monospace;}</style><a href='/'>&lt;&lt;&lt; Back</a><br /><br /><a href='/enter_submission'>Resubmit</a><br /><br />Submitted by '%s' in %s for %s<br /><br />" % submissions[id][:3] + "<br />".join(submissions[id][3])

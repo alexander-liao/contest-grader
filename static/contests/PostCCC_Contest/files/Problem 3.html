@@ -1,35 +1,36 @@
-<!-- Problem 3: Loop Problems -->
+<!-- Problem 3: Convert Prefix to Postfix! -->
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Loop Problems</title>
+        <title>Convert Prefix to Postfix!</title>
     </head>
 
     <body>
         <code><a href="/">&lt;&lt;&lt; Back</a>&nbsp;&nbsp;<a href="/enter_submission">Submit &gt;&gt;&gt;</a></code>
-        <h1>Problem 3: Loop Problems</h1>
-        <p>On the past CCC, Alex forgot to account for loops correctly. You like loops, so you decide to make a problem in honor of loops, to show that they aren’t always bad. Given a graph with vertices labelled 1 to N and M edges, determine the length of the longest cycle.</p>
+        <h1>Problem 3: Convert Prefix to Postfix!</h1>
+        <p>You have recently come across a page containing the magical formula of life. Unfortunately, it is written in prefix notation and your processor only reads postfix notation, so your task is to write a program that will convert from prefix notation to postfix notation.</p>
+        <p>In prefix notation, operators are written before their arguments. For example, <code>+ 2 3</code> means <code>add 2 and 3</code> and <code>- 2 3</code> means <code>subtract 2 and 3 (2-3)</code>. For this problem, the only two operators will be <code>+</code> and <code>*</code></p>
+        <p>In postfix notation, operators are written after their arguments. For example, <code>2 3 +</code> means <code>2 and 3 added together</code> and <code>2 3 -</code> means <code>2 and 3 subtracted (2-3)</code>.</p>
+        <p>Your task is to convert an expression in prefix notation containing only <code>+*1234567890</code> into the same expression in postfix notation. Two adjacent digits represent two different numbers. No spaces will be in the input or the output. To clarify, <code>$ a b</code> for some operator <code>$</code> and arguments <code>a</code> and <code>b</code> translates to <code>a b $</code>.</p>
         <h3>Input Specifications</h3>
         <p>
-          The first line will contain two space separated integers, N and M.<br />
-          M lines will follow, each containing two space separated integers 1 <= x <= N and 1 <= y <= N, indicating there is an edge from x to y but not vise versa. (x != y and no pair (x,y) will be repeated)
+            Input will consist of one line representing the prefix expression.
         </p>
         <h3>Output Specifications</h3>
         <p>
-            The output will consist of a single integer, the length of the longest loop in the graph. It is guaranteed that a loop always exists.
+            Output will consist of one line representing the postfix expression.
         </p>
         <h3>Subtasks</h3>
-        For 20% of the points, <code>N &le; 100</code><br />
-        For another 20% of the points, <code>N &le; 1000</code><br />
-        For the remaining 60% of the points, <code>N &le; 100 000</code><br />
+        For all points, the maximum depth of the expression parse tree is less than 100 and the maximum length of the expression is 10<sup>8</sup>.<br />
+        The time limit is 1 second.
         <h3>Sample Input</h3>
-        <table><tr><td><code>2 2<br />1 2<br />2 1</code></td></tr></table>
+        <table><tr><td><code>+*+1234</code></td></tr></table>
         <h3>Sample Output</h3>
-        <table><tr><td><code>2</code></td></tr></table>
+        <table><tr><td><code>12+3*4+</code></td></tr></table>
         <h3>Sample Input</h3>
-        <table><tr><td><code>3 6<br />1 2<br />2 3<br />3 1<br />1 3<br />3 2<br />2 1</code></td></tr></table>
+        <table><tr><td><code>+*+12+34*+56+78</code></td></tr></table>
         <h3>Sample Output</h3>
-        <table><tr><td><code>3</code></td></tr></table>
+        <table><tr><td><code>12+34+*56+78+*+</code></td></tr></table>
     </body>
 
     <style>

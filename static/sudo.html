@@ -12,6 +12,7 @@
     <button onclick="set_contest()">Set contest</button>
     <button onclick="contest_mode('stop')">Stop contest</button>
     <button onclick="contest_mode('start')">Start contest</button>
+    <button onclick="set_user_points()">Set user points</button>
   </body>
 
   <script>
@@ -31,20 +32,28 @@
     function kick_leaderboard() {
       var name = prompt("Please enter the name of the user you wish to remove");
       if (confirm("Are you sure you want to kick '" + name + "' from the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
-        fetch("/kick_leaderboard/" + btoa(name).replace("/", "-") + "/" + sudoID());
+        fetch("/kick_leaderboard/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
       }
     }
 
     function set_contest() {
       var name = prompt("Please enter the name of the contest you wish to set");
       if (confirm("Are you sure you want to set the contest to '" + name + "'")) {
-          fetch("/set_contest/" + btoa(name).replace("/", "-") + "/" + sudoID());
+          fetch("/set_contest/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
         }
     }
 
     function contest_mode(mode) {
       if (confirm("Are you sure you want to " + mode + " the contest?")) {
         fetch("/" + mode + "_contest/" + sudoID());
+      }
+    }
+    
+    function set_user_points() {
+      var name = prompt("Please enter the name of the user whose points you wish to modify");
+      var code = prompt("Please enter the points you wish to set for '" + name + "'");
+      if (confirm("Are you sure you want to set points for '" + name + "' to " + code + "?")) {
+        fetch("/set_user_points/" + btoa(name).replace(/\//g, "-") + "/" + code.replace(/\//g, "-") + "/" + sudoID());
       }
     }
   </script>
