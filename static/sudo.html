@@ -9,7 +9,8 @@
     <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" />
     <button onclick="clear_leaderboard()">Clear Leaderboard</button>
     <button onclick="kick_leaderboard()">Kick a user from Leaderboard</button>
-    <button onclick="set_contest()">Set contest</button>
+    <button onclick="add_problem()">Add a problem</button>
+    <button onclick="rm_problem()">Remove a problem</button>
     <button onclick="contest_mode('stop')">Stop contest</button>
     <button onclick="contest_mode('start')">Start contest</button>
     <button onclick="set_user_points()">Set user points</button>
@@ -36,10 +37,17 @@
       }
     }
 
-    function set_contest() {
-      var name = prompt("Please enter the name of the contest you wish to set");
-      if (confirm("Are you sure you want to set the contest to '" + name + "'")) {
-          fetch("/set_contest/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
+    function add_problem() {
+      var name = prompt("Please enter the name of the problem you wish to add");
+      if (confirm("Are you sure you want to add '" + name + "' to the contest?")) {
+          fetch("/add_problem/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
+        }
+    }
+
+    function rm_problem() {
+      var name = prompt("Please enter the name of the problem you wish to remove");
+      if (confirm("Are you sure you want to remove '" + name + "' from the contest?")) {
+          fetch("/rm_problem/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
         }
     }
 
