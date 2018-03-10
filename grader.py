@@ -1,4 +1,4 @@
-import os, sys, threading, json, shutil, base64, requests, io, traceback, html
+import os, sys, threading, json, shutil, base64, requests, io, traceback, html, shlex
 
 from flask import Flask, request
 from flask_cors import CORS
@@ -154,6 +154,9 @@ def fullname(name):
 def getFullNames():
   return list(map(fullname, getProblems()))
 
+def decode(string):
+  return "".join(map(chr, base64.b64decode(string.replace("-", "/"))))
+
 @app.route("/")
 def serveRoot():
   if not running: return "<h2>Contest is currently paused...</h2>"
@@ -185,18 +188,22 @@ def clear_leaderboard(userhash):
 def kick_leaderboard(username, userhash):
   global users
   if userhash == serverhash:
-    user = "".join(map(chr, base64.b64decode(username.replace("-", "/"))))
-    if user in users:
-      del users[user]
+    __kick_leaderboard("".join(map(chr, base64.b64decode(username.replace("-", "/")))))
   return ""
+
+def __kick_leaderboard(username):
+  if username in users:
+    del users[username]
 
 @app.route("/set_user_points/<username>/<points>/<userhash>")
 def set_user_points(username, points, userhash):
   global users
   if userhash == serverhash:
-    user = "".join(map(chr, base64.b64decode(username.replace("-", "/"))))
-    users[user] = list(map(int, points.split("-")))
+    __set_points("".join(map(chr, base64.b64decode(username.replace("-", "/")))), list(map(int, points.split("-"))))
   return ""
+
+def __set_points(username, points):
+  users[username] = points
 
 @app.route("/stop_contest/<userhash>")
 def stop_contest(userhash):
@@ -215,21 +222,25 @@ def start_contest(userhash):
 @app.route("/add_problem/<problem_name>/<userhash>")
 def add_problem(problem_name, userhash):
   if userhash == serverhash:
-    problem_name = "".join(map(chr, base64.b64decode(problem_name.replace("-", "/"))))
-    if problem_name in os.listdir("static/problems"):
-      with open("static/contest.txt", "a", encoding = "utf-8") as f:
-        f.write(problem_name + "\n")
+    __add_problem("".join(map(chr, base64.b64decode(problem_name.replace("-", "/")))))
   return ""
+
+def __add_problem(name):
+  if name in os.listdir("static/problems"):
+    with open("static/contest.txt", "a", encoding = "utf-8") as f:
+      f.write(name + "\n")
 
 @app.route("/rm_problem/<problem_name>/<userhash>")
 def rm_problem(problem_name, userhash):
   if userhash == serverhash:
-    problem_name = "".join(map(chr, base64.b64decode(problem_name.replace("-", "/"))))
-    with open("static/contest.txt", "r", encoding = "utf-8") as f:
-      lines = f.read().splitlines()
-    with open("static/contest.txt", "w", encoding = "utf-8") as f:
-      f.write("\n".join(line for line in lines if line != problem_name))
+    __rm_problem("".join(map(chr, base64.b64decode(problem_name.replace("-", "/")))))
   return ""
+
+def __rm_problem(name):
+  with open("static/contest.txt", "r", encoding = "utf-8") as f:
+    lines = f.read().splitlines()
+  with open("static/contest.txt", "w", encoding = "utf-8") as f:
+    f.write("\n".join(line for line in lines if line != name))
 
 @app.route("/problem/<int:id>")
 def problem(id):
@@ -266,11 +277,30 @@ def submission(id):
   return "<style>body{font-family: monospace;}</style><a href='/'>&lt;&lt;&lt; Back</a><br /><br /><a href='/enter_submission'>Resubmit</a><br /><br />Submitted by '%s' in %s for %s<br /><br />" % submissions[id][:3] + "<br />".join(submissions[id][3])
 
 def process_command(command):
-  print(command)
+  if command == []:
+    return
+  if command[0] == "remove":
+    __rm_problem(command[1])
+  elif command[0] == "add":
+    __add_problem(command[1])
+  elif command[0] == "stop" or command[0] == "pause":
+    stop_contest(serverhash)
+  elif command[0] == "start" or command[0] == "resume":
+    start_contest(serverhash)
+  elif command[0] == "kick":
+    __kick_leaderboard(command[1])
+  elif command[0] == "clearboard":
+    clear_leaderboard(serverhash)
+  elif command[0] == "setpoints":
+    __set_points(command[1], list(map(int, command[2].split("/"))))
+  elif command[0] == "clear":
+    sys.stdout.write("\033[2J\033[1;1H")
+  elif command[0] == "shutdown":
+    exit(0)
 
 def run_processor():
   while True:
-    process_command(input(">>> "))
+    process_command(shlex.split(input(">>> ")))
 
 if __name__ == "__main__":
   if len(sys.argv) >= 2:

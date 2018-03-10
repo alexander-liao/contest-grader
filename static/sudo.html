@@ -14,6 +14,17 @@
     <button onclick="contest_mode('stop')">Stop contest</button>
     <button onclick="contest_mode('start')">Start contest</button>
     <button onclick="set_user_points()">Set user points</button>
+    <br /><br />
+    <button onclick="create_problem()">Create problem</button>
+    <br /><br />
+    <input type="text" id="title" style="font-family:monospace" placeholder="title" />
+    <br /><br />
+    <div>
+      <textarea style="width:49%;height:20em;font-family:monospace" id="gen" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
+      <textarea style="width:49%;height:20em;font-family:monospace" id="gen" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
+    </div>
+    <br />
+    <input type="text" id="points" style="font-family:monospace;width:49%;float:left;" placeholder="Test Case Points (separated by /)" />
   </body>
 
   <script>
