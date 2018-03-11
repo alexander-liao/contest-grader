@@ -18,6 +18,7 @@
     <button onclick="create_problem()">Create problem</button>
     <br /><br />
     <input type="text" id="title" style="font-family:monospace" placeholder="Title" />
+    <input type="text" id="id" style="font-family:monospace" placeholder="Problem ID" />
     <br /><br />
     <div>
       <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
@@ -29,6 +30,9 @@
       <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
     </div>
     <div>
+      <input type="text" id="impl_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the sample implementation" />
+      <input type="text" id="genr_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the test case generator" />
+    </div><br /><div>
       <input type="text" id="impl_command" style="font-family:monospace;width:49%" placeholder="Command to run the sample implementation" />
       <input type="text" id="genr_command" style="font-family:monospace;width:49%" placeholder="Command to run the test case generator" />
     </div>
@@ -93,22 +97,11 @@
 
     function create_problem() {
       var get = function(id) { return document.getElementById(id).value; }
-      var GET = function(id) { return document.getElementById(id).innerHTML; }
       if (confirm("Are you sure you want to create this problem?")) {
-        fetch("/create_problem/"
-          + encode(get("title"))
-          + "/" + encode(GET("desc"))
-          + "/" + encode(GET("subt"))
-          + "/" + encode(GET("inpt"))
-          + "/" + encode(GET("outp"))
-          + "/" + encode(GET("smpl"))
-          + "/" + encode(GET("impl"))
-          + "/" + encode(GET("genr"))
-          + "/" + encode(get("impl_command"))
-          + "/" + encode(get("genr_command"))
-          + "/" + encode(get("pts"))
-          + "/" + encode(get("tls"))
-          + sudoID()
+        fetch("/create_problem/" + encode(JSON.stringify([
+          get("title"), get("id"), get("desc"), get("subt"), get("inpt"), get("outp"), get("smpl"), get("impl"), get("genr"),
+          get("impl_precommand"), get("genr_precommand"), get("impl_command"), get("genr_command"), get("pts"), get("tls")]))
+          + "/" + sudoID()
         );
       }
     }

@@ -155,7 +155,7 @@ def getFullNames():
   return list(map(fullname, getProblems()))
 
 def decode(string):
-  return "".join(map(chr, base64.b64decode(string.replace("-", "/"))))
+  return base64.b64decode(string.replace("-", "/")).decode("utf-8")
 
 @app.route("/")
 def serveRoot():
@@ -188,7 +188,7 @@ def clear_leaderboard(userhash):
 def kick_leaderboard(username, userhash):
   global users
   if userhash == serverhash:
-    __kick_leaderboard("".join(map(chr, base64.b64decode(username.replace("-", "/")))))
+    __kick_leaderboard(decode(username))
   return ""
 
 def __kick_leaderboard(username):
@@ -199,7 +199,7 @@ def __kick_leaderboard(username):
 def set_user_points(username, points, userhash):
   global users
   if userhash == serverhash:
-    __set_points("".join(map(chr, base64.b64decode(username.replace("-", "/")))), list(map(int, points.split("-"))))
+    __set_points(decode(username), list(map(int, points.split("-"))))
   return ""
 
 def __set_points(username, points):
@@ -222,7 +222,7 @@ def start_contest(userhash):
 @app.route("/add_problem/<problem_name>/<userhash>")
 def add_problem(problem_name, userhash):
   if userhash == serverhash:
-    __add_problem("".join(map(chr, base64.b64decode(problem_name.replace("-", "/")))))
+    __add_problem(decode(problem_name))
   return ""
 
 def __add_problem(name):
@@ -233,7 +233,7 @@ def __add_problem(name):
 @app.route("/rm_problem/<problem_name>/<userhash>")
 def rm_problem(problem_name, userhash):
   if userhash == serverhash:
-    __rm_problem("".join(map(chr, base64.b64decode(problem_name.replace("-", "/")))))
+    __rm_problem(decode(problem_name))
   return ""
 
 def __rm_problem(name):
@@ -241,6 +241,23 @@ def __rm_problem(name):
     lines = f.read().splitlines()
   with open("static/contest.txt", "w", encoding = "utf-8") as f:
     f.write("\n".join(line for line in lines if line != name))
+
+@app.route("/create_problem/<content>/<userhash>")
+def create_problem(content, userhash):
+  if userhash == serverhash:
+    title, problem_id, desc, subt, inpt, outp, smpl, impl, genr, impl_precommand, genr_precommand, impl_command, genr_command, pts, tls = json.loads(decode(content))
+    with open("static/problem_format.html", "r", encoding = "utf-8") as f:
+      smpl = smpl.split("\n")
+      smpl = [(smpl[i * 2], smpl[i * 2 + 1]) for i in range(len(smpl) // 2)]
+      problem_html = f.read() % (title, title, title, desc, subt, inpt, outp, "\n".join("<h3>Sample Input</h3>\n<table><tr><td><code>%s</code></td></tr></table>\n<h3>Sample Output</h3>\n<table><tr><td><code>%s</code></td></tr></table>" % (case[0], case[1]) for case in smpl))
+      os.mkdir("static/problems/" + problem_id)
+      with open("static/problems/" + problem_id + "/problem.html", "w") as f:
+        f.write(problem_html)
+      os.chdir("static/problems/" + problem_id)
+      os.system(impl_precommand)
+      os.system(genr_precommand)
+      # TODO
+  return ""
 
 @app.route("/problem/<int:id>")
 def problem(id):
@@ -268,7 +285,7 @@ def enter_submission():
 @app.route("/submit/<data>")
 def submit(data):
   if not running: return "/"
-  return process_submission(**json.loads(base64.b64decode(data.replace(".", "/")).decode('utf-8')))
+  return process_submission(**json.loads(decode(data)))
 
 @app.route("/submission/<int:id>")
 def submission(id):
