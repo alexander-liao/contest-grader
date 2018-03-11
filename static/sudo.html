@@ -17,14 +17,25 @@
     <br /><br />
     <button onclick="create_problem()">Create problem</button>
     <br /><br />
-    <input type="text" id="title" style="font-family:monospace" placeholder="title" />
+    <input type="text" id="title" style="font-family:monospace" placeholder="Title" />
     <br /><br />
     <div>
-      <textarea style="width:49%;height:20em;font-family:monospace" id="gen" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
-      <textarea style="width:49%;height:20em;font-family:monospace" id="gen" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
+      <textarea style="width:99%;height:5em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
+      <textarea style="width:49%;height:10em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
+      <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
+    </div>
+    <div>
+      <input type="text" id="impl_command" style="font-family:monospace;width:49%" placeholder="Command to run the sample implementation" />
+      <input type="text" id="genr_command" style="font-family:monospace;width:49%" placeholder="Command to run the test case generator" />
     </div>
     <br />
-    <input type="text" id="points" style="font-family:monospace;width:49%;float:left;" placeholder="Test Case Points (separated by /)" />
+    <input type="text" id="pts" style="font-family:monospace;width:49%" placeholder="Test Case Points (separated by /)" />
+    <input type="text" id="tls" style="font-family:monospace;width:49%" placeholder="Test Case Timelimits (one integer or separated by /)" />
+    <br />
   </body>
 
   <script>
@@ -33,6 +44,10 @@
       var jSha = new jsSHA("SHA-256", "TEXT");
       jSha.update(text);
       return jSha.getHash("HEX");
+    }
+
+    function encode(string) {
+      return btoa(string).replace(/\//g, "-");
     }
 
     function clear_leaderboard() {
@@ -44,21 +59,21 @@
     function kick_leaderboard() {
       var name = prompt("Please enter the name of the user you wish to remove");
       if (confirm("Are you sure you want to kick '" + name + "' from the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
-        fetch("/kick_leaderboard/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
+        fetch("/kick_leaderboard/" + encode(name) + "/" + sudoID());
       }
     }
 
     function add_problem() {
       var name = prompt("Please enter the name of the problem you wish to add");
       if (confirm("Are you sure you want to add '" + name + "' to the contest?")) {
-          fetch("/add_problem/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
+          fetch("/add_problem/" + encode(name) + "/" + sudoID());
         }
     }
 
     function rm_problem() {
       var name = prompt("Please enter the name of the problem you wish to remove");
       if (confirm("Are you sure you want to remove '" + name + "' from the contest?")) {
-          fetch("/rm_problem/" + btoa(name).replace(/\//g, "-") + "/" + sudoID());
+          fetch("/rm_problem/" + encode(name) + "/" + sudoID());
         }
     }
 
@@ -67,12 +82,34 @@
         fetch("/" + mode + "_contest/" + sudoID());
       }
     }
-    
+
     function set_user_points() {
       var name = prompt("Please enter the name of the user whose points you wish to modify");
       var code = prompt("Please enter the points you wish to set for '" + name + "'");
       if (confirm("Are you sure you want to set points for '" + name + "' to " + code + "?")) {
-        fetch("/set_user_points/" + btoa(name).replace(/\//g, "-") + "/" + code.replace(/\//g, "-") + "/" + sudoID());
+        fetch("/set_user_points/" + encode(name) + "/" + code.replace(/\//g, "-") + "/" + sudoID());
+      }
+    }
+
+    function create_problem() {
+      var get = function(id) { return document.getElementById(id).value; }
+      var GET = function(id) { return document.getElementById(id).innerHTML; }
+      if (confirm("Are you sure you want to create this problem?")) {
+        fetch("/create_problem/"
+          + encode(get("title"))
+          + "/" + encode(GET("desc"))
+          + "/" + encode(GET("subt"))
+          + "/" + encode(GET("inpt"))
+          + "/" + encode(GET("outp"))
+          + "/" + encode(GET("smpl"))
+          + "/" + encode(GET("impl"))
+          + "/" + encode(GET("genr"))
+          + "/" + encode(get("impl_command"))
+          + "/" + encode(get("genr_command"))
+          + "/" + encode(get("pts"))
+          + "/" + encode(get("tls"))
+          + sudoID()
+        );
       }
     }
   </script>
