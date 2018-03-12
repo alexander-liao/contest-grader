@@ -134,8 +134,8 @@ def process_submission(username, code, language, problem):
     with open(filename, "w+") as f:
       f.write(code)
     for command in commands[:-1]:
-      call(command.split(), cwd = foldername)
-    test(commands[-1].split(), get_data(problem), foldername, submission[3].append, username, problems.index(problem), len(problems))
+      call(shlex.split(command), cwd = foldername)
+    test(shlex.split(commands[-1]), get_data(problem), foldername, submission[3].append, username, problems.index(problem), len(problems))
     shutil.rmtree(foldername)
   threading.Thread(target = proc).start()
   return "/submission/%d" % id
@@ -245,7 +245,9 @@ def __rm_problem(name):
 @app.route("/create_problem/<content>/<userhash>")
 def create_problem(content, userhash):
   if userhash == serverhash:
-    title, problem_id, desc, subt, inpt, outp, smpl, impl, genr, impl_precommand, genr_precommand, impl_command, genr_command, pts, tls = json.loads(decode(content))
+    title, problem_id, desc, subt, inpt, outp, smpl, impl, genr, impl_filename, genr_filename, impl_precommand, genr_precommand, impl_command, genr_command, pts, tls, tcc = json.loads(decode(content))
+    if problem_id in os.listdir("static/problems"):
+      shutil.rmtree("static/problems/" + problem_id)
     with open("static/problem_format.html", "r", encoding = "utf-8") as f:
       smpl = smpl.split("\n")
       smpl = [(smpl[i * 2], smpl[i * 2 + 1]) for i in range(len(smpl) // 2)]
@@ -256,7 +258,33 @@ def create_problem(content, userhash):
       os.chdir("static/problems/" + problem_id)
       os.system(impl_precommand)
       os.system(genr_precommand)
-      # TODO
+      with open(impl_filename, "w") as f:
+        f.write(impl)
+      with open(genr_filename, "w") as f:
+        f.write(genr)
+      pts = list(map(int, pts.split("/")))
+      tls = list(map(int, tls.split("/"))) * (len(pts) if "/" not in tls else 1)
+      tcc = list(map(int, tcc.split("/"))) * (len(pts) if "/" not in tcc else 1)
+      tests = []
+      impl_command, genr_command = shlex.split(impl_command), shlex.split( genr_command)
+      for suiteno, (pt, tl, tc) in enumerate(zip(pts, tls, tcc)):
+        attrs = {}
+        tests.append(attrs)
+        attrs["timelimit"] = tl
+        attrs["points"] = pt
+        test_cases = []
+        attrs["tests"] = test_cases
+        for _ in range(tc):
+          test_in = check_output(genr_command, input = bytes(str(suiteno), "utf-8"))
+          test_out = check_output(impl_command, input = test_in)
+          test_cases.append((test_in.decode("utf-8"), test_out.decode("utf-8")))
+      with open("tests.json", "w") as f:
+        f.write(json.dumps(tests, indent = 4))
+      os.remove(impl_filename)
+      os.remove(genr_filename)
+    print(os.getcwd())
+    os.chdir("../../..")
+    print(os.getcwd())
   return ""
 
 @app.route("/problem/<int:id>")
@@ -312,6 +340,11 @@ def process_command(command):
     __set_points(command[1], list(map(int, command[2].split("/"))))
   elif command[0] == "clear":
     sys.stdout.write("\033[2J\033[1;1H")
+  elif command[0] == "eval":
+    try:
+      print(eval(command[1]))
+    except:
+      traceback.print_exc()
   elif command[0] == "shutdown":
     exit(0)
 

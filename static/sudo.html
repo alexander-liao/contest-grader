@@ -21,15 +21,18 @@
     <input type="text" id="id" style="font-family:monospace" placeholder="Problem ID" />
     <br /><br />
     <div>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
-      <textarea style="width:99%;height:5em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
-      <textarea style="width:49%;height:10em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
-      <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
+      <textarea style="width:49%;height:4em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
+      <textarea style="width:49%;height:4em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
+      <textarea style="width:49%;height:4em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
+      <textarea style="width:49%;height:4em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
+      <textarea style="width:99%;height:4em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
+      <textarea style="width:49%;height:8em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
+      <textarea style="width:49%;height:8em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
     </div>
     <div>
+      <input type="text" id="impl_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the sample implementation" />
+      <input type="text" id="genr_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the test case generator" />
+    </div><br /><div>
       <input type="text" id="impl_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the sample implementation" />
       <input type="text" id="genr_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the test case generator" />
     </div><br /><div>
@@ -37,8 +40,9 @@
       <input type="text" id="genr_command" style="font-family:monospace;width:49%" placeholder="Command to run the test case generator" />
     </div>
     <br />
-    <input type="text" id="pts" style="font-family:monospace;width:49%" placeholder="Test Case Points (separated by /)" />
-    <input type="text" id="tls" style="font-family:monospace;width:49%" placeholder="Test Case Timelimits (one integer or separated by /)" />
+    <input type="text" id="pts" style="font-family:monospace;width:32%" placeholder="Test Case Points (separated by /)" />
+    <input type="text" id="tls" style="font-family:monospace;width:32%" placeholder="Test Case Timelimits (one integer or separated by /)" />
+    <input type="text" id="tcc" style="font-family:monospace;width:32%" placeholder="Test Case Count (one integer or separated by /)" />
     <br />
   </body>
 
@@ -99,8 +103,9 @@
       var get = function(id) { return document.getElementById(id).value; }
       if (confirm("Are you sure you want to create this problem?")) {
         fetch("/create_problem/" + encode(JSON.stringify([
-          get("title"), get("id"), get("desc"), get("subt"), get("inpt"), get("outp"), get("smpl"), get("impl"), get("genr"),
-          get("impl_precommand"), get("genr_precommand"), get("impl_command"), get("genr_command"), get("pts"), get("tls")]))
+          get("title"), get("id"), get("desc"), get("subt"), get("inpt"), get("outp"), get("smpl"),
+          get("impl"), get("genr"), get("impl_filename"), get("genr_filename"), get("impl_precommand"),
+          get("genr_precommand"), get("impl_command"), get("genr_command"), get("pts"), get("tls"), get("tcc")]))
           + "/" + sudoID()
         );
       }
