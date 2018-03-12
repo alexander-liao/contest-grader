@@ -229,6 +229,8 @@ def __add_problem(name):
   if name in os.listdir("static/problems"):
     with open("static/contest.txt", "a", encoding = "utf-8") as f:
       f.write(name + "\n")
+    for user in users:
+      users[user] += [0]
 
 @app.route("/rm_problem/<problem_name>/<userhash>")
 def rm_problem(problem_name, userhash):
@@ -239,6 +241,10 @@ def rm_problem(problem_name, userhash):
 def __rm_problem(name):
   with open("static/contest.txt", "r", encoding = "utf-8") as f:
     lines = f.read().splitlines()
+  index = lines.index(name) if name in lines else -1
+  if index != -1:
+    for user in users:
+      del users[user][index]
   with open("static/contest.txt", "w", encoding = "utf-8") as f:
     f.write("\n".join(line for line in lines if line != name))
 
@@ -276,12 +282,12 @@ def create_problem(content, userhash):
       os.chdir("static/problems/" + problem_id)
       with open("problem.html", "w") as f:
         f.write(problem_html)
-      os.system(impl_precommand)
-      os.system(genr_precommand)
       with open(impl_filename, "w") as f:
         f.write(impl)
       with open(genr_filename, "w") as f:
         f.write(genr)
+      os.system(impl_precommand)
+      os.system(genr_precommand)
       pts = list(map(int, pts.split("/")))
       tls = list(map(int, tls.split("/"))) * (len(pts) if "/" not in tls else 1)
       tcc = list(map(int, tcc.split("/"))) * (len(pts) if "/" not in tcc else 1)

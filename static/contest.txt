@@ -1,2 +1,4 @@
 count-up
 cat
+add-one
+string-reversal

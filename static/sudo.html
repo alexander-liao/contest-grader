@@ -6,7 +6,9 @@
   </head>
 
   <body>
-    <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" />
+    <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" /><br /><br />
+    <input type="text" id="cmd" style="font-family:monospace;width:75%" placeholder="command" />
+    <button onclick="run_command()">Run Command</button><br /><br />
     <button onclick="clear_leaderboard()">Clear Leaderboard</button>
     <button onclick="kick_leaderboard()">Kick a user from Leaderboard</button>
     <button onclick="add_problem()">Add problem</button>
@@ -23,13 +25,13 @@
     <input type="text" id="id" style="font-family:monospace" placeholder="Problem ID" />
     <br /><br />
     <div>
-      <textarea style="width:49%;height:4em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
-      <textarea style="width:49%;height:4em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
-      <textarea style="width:49%;height:4em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
-      <textarea style="width:49%;height:4em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
-      <textarea style="width:99%;height:4em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
-      <textarea style="width:49%;height:8em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
-      <textarea style="width:49%;height:8em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
+      <textarea style="width:99%;height:5em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
+      <textarea style="width:49%;height:10em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
+      <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
     </div>
     <div>
       <input type="text" id="impl_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the sample implementation" />
