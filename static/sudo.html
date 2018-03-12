@@ -9,8 +9,10 @@
     <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" />
     <button onclick="clear_leaderboard()">Clear Leaderboard</button>
     <button onclick="kick_leaderboard()">Kick a user from Leaderboard</button>
-    <button onclick="add_problem()">Add a problem</button>
-    <button onclick="rm_problem()">Remove a problem</button>
+    <button onclick="add_problem()">Add problem</button>
+    <button onclick="rm_problem()">Remove problem</button>
+    <button onclick="reset_contest()">Reset contest</button>
+    <button onclick="del_problem()">Delete problem</button>
     <button onclick="contest_mode('stop')">Stop contest</button>
     <button onclick="contest_mode('start')">Start contest</button>
     <button onclick="set_user_points()">Set user points</button>
@@ -83,6 +85,19 @@
       if (confirm("Are you sure you want to remove '" + name + "' from the contest?")) {
           fetch("/rm_problem/" + encode(name) + "/" + sudoID());
         }
+    }
+    
+    function reset_contest() {
+      if (confirm("Are you sure you want to remove all problems from the contest?")) {
+        fetch("/reset_contest/" + sudoID());
+      }
+    }
+    
+    function del_problem() {
+      var name = prompt("Please enter the name of the problem you wish to delete");
+      if (confirm("Are you sure you want to delete '" + name + "'? THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/del_problem/" + encode(name) + "/" + sudoID());
+      }
     }
 
     function contest_mode(mode) {

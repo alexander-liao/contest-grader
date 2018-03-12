@@ -242,6 +242,26 @@ def __rm_problem(name):
   with open("static/contest.txt", "w", encoding = "utf-8") as f:
     f.write("\n".join(line for line in lines if line != name))
 
+@app.route("/reset_contest/<userhash>")
+def reset_contest(userhash):
+  if userhash == serverhash:
+    __reset_contest()
+  return ""
+
+def __reset_contest():
+  with open("static/contest.txt", "w", encoding = "utf-8") as f:
+    f.write("")
+
+@app.route("/del_problem/<problem_name>/<userhash>")
+def del_problem(problem_name, userhash):
+  if userhash == serverhash:
+    __del_problem(decode(problem_name))
+  return ""
+
+def __del_problem(name):
+  shutil.rmtree("static/problems/" + name)
+  __rm_problem(name)
+
 @app.route("/create_problem/<content>/<userhash>")
 def create_problem(content, userhash):
   if userhash == serverhash:
@@ -253,9 +273,9 @@ def create_problem(content, userhash):
       smpl = [(smpl[i * 2], smpl[i * 2 + 1]) for i in range(len(smpl) // 2)]
       problem_html = f.read() % (title, title, title, desc, subt, inpt, outp, "\n".join("<h3>Sample Input</h3>\n<table><tr><td><code>%s</code></td></tr></table>\n<h3>Sample Output</h3>\n<table><tr><td><code>%s</code></td></tr></table>" % (case[0], case[1]) for case in smpl))
       os.mkdir("static/problems/" + problem_id)
-      with open("static/problems/" + problem_id + "/problem.html", "w") as f:
-        f.write(problem_html)
       os.chdir("static/problems/" + problem_id)
+      with open("problem.html", "w") as f:
+        f.write(problem_html)
       os.system(impl_precommand)
       os.system(genr_precommand)
       with open(impl_filename, "w") as f:
@@ -282,9 +302,7 @@ def create_problem(content, userhash):
         f.write(json.dumps(tests, indent = 4))
       os.remove(impl_filename)
       os.remove(genr_filename)
-    print(os.getcwd())
     os.chdir("../../..")
-    print(os.getcwd())
   return ""
 
 @app.route("/problem/<int:id>")
