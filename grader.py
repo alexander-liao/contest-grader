@@ -309,6 +309,23 @@ def __set_contest(contest):
   else:
     print("Could not find contest " + contest + "!")
 
+@app.route("/load_problem/<problem>/<userhash>")
+def load_problem(problem, userhash):
+  if userhash == serverhash:
+    return __load_problem(decode(problem))
+  else:
+    print("Invalid password for loading a problem!")
+  return ""
+
+def __load_problem(problem):
+  if problem in os.listdir("static/problems"):
+    print("Loaded problem " + problem + "!")
+    with open("static/problems/%s/problem.json" % problem, "r") as f:
+      return f.read()
+  else:
+    print("Could not find problem " + problem + "!")
+    return ""
+
 @app.route("/load_config/<contest>/<userhash>")
 def load_config(contest, userhash):
   if userhash == serverhash:
@@ -356,45 +373,37 @@ def __del_problem(name):
 def create_problem(content, userhash):
   try:
     if userhash == serverhash:
-      title, problem_id, desc, subt, inpt, outp, smpl, impl, genr, impl_filename, genr_filename, impl_precommand, genr_precommand, impl_command, genr_command, impl_postcommand, genr_postcommand, pts, tls, tcc = json.loads(decode(content))
-      print("[-- creating problem {problem_id} --]".format(problem_id = problem_id))
+      problem = json.loads(decode(content))
+      print("[-- creating problem {problem_id} --]".format(problem_id = problem["id"]))
       print("=" * 50)
-      print(impl)
+      print(problem["impl"])
       print("=" * 50)
-      print(genr)
+      print(problem["genr"])
       print("=" * 50)
-      if problem_id in os.listdir("static/problems"):
-        print("* deleting existing problem {problem_id}...".format(problem_id = problem_id))
-        shutil.rmtree("static/problems/" + problem_id)
+      if problem["id"] in os.listdir("static/problems"):
+        print("* deleting existing problem {problem_id}...".format(problem_id = problem["id"]))
+        shutil.rmtree("static/problems/" + problem["id"])
       with open("static/problem_format.html", "r", encoding = "utf-8") as f:
-        smpl = smpl.split("\n")
+        smpl = problem["smpl"].split("\n")
         smpl = [(smpl[i * 2], smpl[i * 2 + 1]) for i in range(len(smpl) // 2)]
-        problem_json = json.dumps({
-          "title": title,
-          "desc": desc,
-          "subt": subt,
-          "inpt": inpt,
-          "outp": outp,
-          "smpl": smpl
-        })
         print("* creating problem folder...")
-        os.mkdir("static/problems/" + problem_id)
-        os.chdir("static/problems/" + problem_id)
+        os.mkdir("static/problems/" + problem["id"])
+        os.chdir("static/problems/" + problem["id"])
         print("* writing problem JSON file...")
         with open("problem.json", "w") as f:
-          f.write(problem_json)
-        with open(impl_filename, "w") as f:
-          f.write(impl)
-        with open(genr_filename, "w") as f:
-          f.write(genr)
+          f.write(json.dumps(problem, indent = 4))
+        with open(problem["impl_filename"], "w") as f:
+          f.write(problem["impl"])
+        with open(problem["genr_filename"], "w") as f:
+          f.write(problem["genr"])
         print("* running pre-commands...")
-        os.system(impl_precommand)
-        os.system(genr_precommand)
-        pts = list(map(int, pts.split("/")))
-        tls = list(map(int, tls.split("/"))) * (len(pts) if "/" not in tls else 1)
-        tcc = list(map(int, tcc.split("/"))) * (len(pts) if "/" not in tcc else 1)
+        os.system(problem["impl_precommand"])
+        os.system(problem["genr_precommand"])
+        pts = list(map(int, problem["pts"].split("/")))
+        tls = list(map(int, problem["tls"].split("/"))) * (len(pts) if "/" not in problem["tls"] else 1)
+        tcc = list(map(int, problem["tcc"].split("/"))) * (len(pts) if "/" not in problem["tcc"] else 1)
         tests = []
-        impl_command, genr_command = shlex.split(impl_command), shlex.split( genr_command)
+        impl_command, genr_command = shlex.split(problem["impl_command"]), shlex.split(problem["genr_command"])
         for suiteno, (pt, tl, tc) in enumerate(zip(pts, tls, tcc)):
           print("* generating suite {suiteno} of {total}...".format(suiteno = suiteno + 1, total = len(pts)))
           attrs = {}
@@ -411,16 +420,17 @@ def create_problem(content, userhash):
         with open("tests.json", "w") as f:
           f.write(json.dumps(tests, indent = 4))
         print("* running post-commands...")
-        os.system(impl_postcommand)
-        os.system(genr_postcommand)
+        os.system(problem["impl_postcommand"])
+        os.system(problem["genr_postcommand"])
         print("* cleaning up generation files...")
-        os.remove(impl_filename)
-        os.remove(genr_filename)
+        os.remove(problem["impl_filename"])
+        os.remove(problem["genr_filename"])
       os.chdir("../../..")
       print("* done!")
     else:
       print("Invalid password for creating a problem!")
   except:
+    traceback.print_exc()
     os.chdir("/home/cabox/workspace/contest-grader")
   return ""
 

@@ -1,1 +1,22 @@
-{"subt": "For all test cases, <code>1 &le; r &le; 10<sup>9</sup></code> and <code>1 &le; e &le; 10<sup>9</sup></code>\nFor 10 of the available 100 marks, <code>N, M &le; 10</code>\nFor an additional 20 marks, <code>N, M &le; 100</code>\nFor the remaining 70 marks, <code>N &le; 10<sup>5</sup>, M &le; 1000</code>", "smpl": [["2 12<br />10 8<br />1 6", "12"], ["2 9<br />10 8<br />11 9", "-1"]], "title": "Lucky Business", "desc": "Ben wants to make a business! Ben has N products that he is selling, each with a revenue of r dollars and an expense of e dollars. He has determined that M is a lucky number, and would like to know the minimal expense to achieve exactly M dollars of revenue. If it is not possible to achieve exactly M dollars of revenue, output -1.", "outp": "The output will consist of a single integer, the minimal expense to get a revenue of exactly M, or -1 if it is not possible to get a revenue of exactly M.", "inpt": "The first line will contain two space-separated integers N and M.\nN lines will follow, each containing two space-separated integers r and e, th revenue and the expense."}
+{
+    "subt": "For all test cases, <code>1 &le; r &le; 10<sup>9</sup></code> and <code>1 &le; e &le; 10<sup>9</sup></code>\nFor 10 of the available 100 marks, <code>N, M &le; 10</code>\nFor an additional 20 marks, <code>N, M &le; 100</code>\nFor the remaining 70 marks, <code>N &le; 10<sup>5</sup>, M &le; 1000</code>",
+    "smpl": "2 12<br />10 8<br />1 6\n12\n2 9<br />10 8<br />11 9\n-1",
+    "genr": "import random\n\ns = int(input())\n\nN = random.randint(1, [10, 100, 100000][s])\nM = random.randint(1, [10, 100, 1000][s])\n\nprint(N, M)\n\nfor _ in range(N):\n    print(int(1000000000 ** random.random()), int(1000000000 ** random.random()))",
+    "pts": "10/20/70",
+    "genr_command": "python3 genr.py",
+    "genr_postcommand": "",
+    "desc": "Ben wants to make a business! Ben has N products that he is selling, each with a revenue of r dollars and an expense of e dollars. He has determined that M is a lucky number, and would like to know the minimal expense to achieve exactly M dollars of revenue. If it is not possible to achieve exactly M dollars of revenue, output -1.",
+    "genr_filename": "genr.py",
+    "outp": "The output will consist of a single integer, the minimal expense to get a revenue of exactly M, or -1 if it is not possible to get a revenue of exactly M.",
+    "inpt": "The first line will contain two space-separated integers N and M.\nN lines will follow, each containing two space-separated integers r and e, th revenue and the expense.",
+    "impl_command": "python3 impl.py",
+    "tls": "1",
+    "genr_precommand": "",
+    "impl_precommand": "",
+    "id": "lucky-business",
+    "tcc": "20",
+    "impl": "N,M = map(int,input().split())\ncosts = {}\nfor item in [list(map(int,input().split())) for _ in range(N)]:\n  if item[0] in costs:\n    costs[item[0]] = min(costs[item[0]],item[1])\n  else:\n    costs[item[0]] = item[1]\ninf = float(\"inf\")\ndp = [inf for _ in range(M+1)]\ndp[0] = 0\nfor cost in range(1,M+1):\n  if cost in costs:\n    dp[cost] = costs[cost]\n  for partial in range(1,cost):\n    if dp[partial] != inf and dp[cost-partial] != inf:\n      dp[cost] = min(dp[cost],dp[partial]+dp[cost-partial])\nif dp[M] != inf:\n  print(dp[M])\nelse:\n  print(-1)",
+    "title": "Lucky Business",
+    "impl_postcommand": "",
+    "impl_filename": "impl.py"
+}

@@ -27,6 +27,7 @@
     <textarea style="width:49%;height:5em;font-family:monospace" id="config" placeholder="Contest Configuration (Problems)"></textarea>
     <br /><hr />
     <button onclick="create_problem()">Create problem</button>
+    <button onclick="load_problem()">Load problem</button>
     <br /><br />
     <input type="text" id="title" style="width:49%;font-family:monospace" placeholder="Title" />
     <input type="text" id="id" style="width:49%;font-family:monospace" placeholder="Problem ID" />
@@ -163,12 +164,45 @@
 
     function create_problem() {
       if (confirm("Are you sure you want to create this problem?")) {
-        fetch("/create_problem/" + encode(JSON.stringify([
-          get("title"), get("id"), get("desc"), get("subt"), get("inpt"), get("outp"), get("smpl"), get("impl"), get("genr"),
-          get("impl_filename"), get("genr_filename"), get("impl_precommand"), get("genr_precommand"), get("impl_command"),
-          get("genr_command"), get("impl_postcommand"), get("genr_postcommand"), get("pts"), get("tls"), get("tcc")]))
-          + "/" + sudoID()
-        );
+        fetch("/create_problem/" + encode(JSON.stringify({
+          "title": get("title"),
+          "id": get("id"),
+          "desc": get("desc"),
+          "subt": get("subt"),
+          "inpt": get("inpt"),
+          "outp": get("outp"),
+          "smpl": get("smpl"),
+          "impl": get("impl"),
+          "genr": get("genr"),
+          "impl_filename": get("impl_filename"),
+          "genr_filename": get("genr_filename"),
+          "impl_precommand": get("impl_precommand"),
+          "genr_precommand": get("genr_precommand"),
+          "impl_command": get("impl_command"),
+          "genr_command": get("genr_command"),
+          "impl_postcommand": get("impl_postcommand"),
+          "genr_postcommand": get("genr_postcommand"),
+          "pts": get("pts"),
+          "tls": get("tls"),
+          "tcc": get("tcc")
+        })) + "/" + sudoID());
+      }
+    }
+    
+    function load_problem() {
+      var name = prompt("Please enter the problem ID of the problem you wish to load");
+      if (confirm("Are you sure you want to load the problem into the problem creater and overwrite the text areas' contents?")) {
+        fetch("/load_problem/" + encode(name) + "/" + sudoID()).then(function(response) {
+          return response.text();
+        }).then(function(text) {
+          if (text != "") {
+            var data = JSON.parse(text);
+            for (var key in data) {
+              document.getElementById(key).value = data[key];
+            }
+            document.getElementById("problem-id").value = name;
+          }
+        });
       }
     }
   </script>

@@ -1,1 +1,22 @@
-{"inpt": "You will be given a positive integer N which represents the side length of the square field.\nThe next N lines will consist of strings of <code>S</code>, <code>L</code>, and <code>.</code> of length N, representing the field, where <code>S</code> is a stem, <code>L</code> is a leaf, and <code>.</code> is grass.", "subt": "For 10 of the available 100 marks, <code>N &le; 10</code>\nFor an additional 20 of the available 100 marks, <code>N &le; 100</code>\nFor the remaining 70 marks, <code>N &le; 500</code>", "desc": "Patrick is walking through a field when he notices a four-leaf clover! As he bends down to pick it up, he wonders how many four-leaf clovers there are in this field. Your task is to help him count the four-leaf clovers in this field!", "title": "Four-Leaf Clovers!", "outp": "The output will consist of the number of S-squares with exactly 4 L-squares adjacent to it. A point <code>(x<sub>0</sub>, y<sub>0</sub>)</code> is adjacent to <code>(x<sub>1</sub>, y<sub>1</sub>)</code> if and only if <code>|x<sub>1</sub> - x<sub>0</sub>| + |y<sub>1</sub> - y<sub>0</sub>| = 1</code>.", "smpl": [["3<br />.L.<br />LSL<br />.L.", "1"], ["4<br />.L..<br />LSL.<br />.LSL<br />..L.", "2"]]}
+{
+    "subt": "For 10 of the available 100 marks, <code>N &le; 10</code>.\nFor an additional 20 marks, <code>N &le; 100</code>.\nFor the remaining 70 marks, <code>N &le; 500</code>.",
+    "smpl": "3<br />.L.<br />LSL<br />.L.\n1\n4<br />.L..<br />LSL.<br />.LSL<br />..L.\n2",
+    "genr": "import random\n\nN = random.randint(3, [10, 100, 500][int(input())])\n\nprint(N)\n\ngrid = [[random.choice(\".LS\") for _ in range(N)] for _ in range(N)]\n\nfor _ in range(random.randint(N, max(N, N ** 2 // 4))):\n    x = random.randint(1, N - 2)\n    y = random.randint(1, N - 2)\n    grid[x][y] = \"S\"\n    grid[x - 1][y] = grid[x + 1][y] = grid[x][y - 1] = grid[x][y + 1] = \"L\"\n\nprint(\"\\n\".join(map(\"\".join, grid)))",
+    "pts": "10/20/70",
+    "genr_command": "python3 genr.py",
+    "genr_postcommand": "",
+    "desc": "Patrick was walking through a field when he saw a four leaf clover! Looking around, he wondered how many more four-leaf clovers there were in the field. Your task is to help him count the number of four-leaf clovers in the field!",
+    "genr_filename": "genr.py",
+    "outp": "The output will consist of a single integer, the number of four-leaf clovers in the field. A four-leaf clover is defined as a stem with exactly four adjacent leaves. Two squares are adjacent if they share an edge.",
+    "inpt": "The first line will contain a single integer N.\nN lines will follow, each containing N characters which are either <code>.</code>, <code>L</code>, or <code>S</code>, with those representing grass, a leaf, or a stem, respectively.",
+    "impl_command": "python3 impl.py",
+    "tls": "1",
+    "genr_precommand": "",
+    "impl_precommand": "",
+    "id": "four-leaf-clovers",
+    "tcc": "20",
+    "impl": "N = int(input())\n\ncount = 0\n\ngrid = [input() for _ in range(N)]\n\nfor x in range(1, N - 1):\n    for y in range(1, N - 1):\n        if grid[x][y] == \"S\" and grid[x - 1][y] == grid[x + 1][y] == grid[x][y - 1] == grid[x][y + 1] == \"L\":\n            count += 1\n\nprint(count)",
+    "title": "Four Leaf Clovers!",
+    "impl_postcommand": "",
+    "impl_filename": "impl.py"
+}
