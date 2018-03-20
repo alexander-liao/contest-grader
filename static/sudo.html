@@ -6,34 +6,40 @@
   </head>
 
   <body>
-    <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" /><br /><br />
+    <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" /><hr />
     <input type="text" id="cmd" style="font-family:monospace;width:75%" placeholder="command" />
-    <button onclick="run_command()">Run Command</button><br /><br />
+    <button onclick="run_command()">Run Command</button><hr />
     <button onclick="clear_leaderboard()">Clear Leaderboard</button>
     <button onclick="kick_leaderboard()">Kick a user from Leaderboard</button>
     <button onclick="add_problem()">Add problem</button>
     <button onclick="rm_problem()">Remove problem</button>
     <button onclick="reset_contest()">Reset contest</button>
+    <button onclick="set_contest()">Set contest</button>
     <button onclick="del_problem()">Delete problem</button>
     <button onclick="contest_mode('stop')">Stop contest</button>
     <button onclick="contest_mode('start')">Start contest</button>
     <button onclick="set_user_points()">Set user points</button>
+    <button onclick="sudo_enter()">Sudo Enter Submission</button>
+    <br /><hr />
+    <button onclick="load_config()">Load contest configuration</button>
+    <button onclick="save_config()">Save contest configuration</button>
     <br /><br />
+    <textarea style="width:49%;height:5em;font-family:monospace" id="config" placeholder="Contest Configuration (Problems)"></textarea>
+    <br /><hr />
     <button onclick="create_problem()">Create problem</button>
     <br /><br />
-    <input type="text" id="title" style="font-family:monospace" placeholder="Title" />
-    <input type="text" id="id" style="font-family:monospace" placeholder="Problem ID" />
+    <input type="text" id="title" style="width:49%;font-family:monospace" placeholder="Title" />
+    <input type="text" id="id" style="width:49%;font-family:monospace" placeholder="Problem ID" />
     <br /><br />
     <div>
       <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
       <textarea style="width:49%;height:5em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
       <textarea style="width:49%;height:5em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
+      <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
       <textarea style="width:99%;height:5em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
       <textarea style="width:49%;height:10em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the file)"></textarea>
       <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, single integer from STDIN represents which test suite is being generated, output the exact text output for a single test case)"></textarea>
-    </div>
-    <div>
+    </div><br /><div>
       <input type="text" id="impl_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the sample implementation" />
       <input type="text" id="genr_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the test case generator" />
     </div><br /><div>
@@ -42,6 +48,9 @@
     </div><br /><div>
       <input type="text" id="impl_command" style="font-family:monospace;width:49%" placeholder="Command to run the sample implementation" />
       <input type="text" id="genr_command" style="font-family:monospace;width:49%" placeholder="Command to run the test case generator" />
+    </div><br /><div>
+      <input type="text" id="impl_postcommand" style="font-family:monospace;width:49%" placeholder="Post-command to run the sample implementation" />
+      <input type="text" id="genr_postcommand" style="font-family:monospace;width:49%" placeholder="Post-command to run the test case generator" />
     </div>
     <br />
     <input type="text" id="pts" style="font-family:monospace;width:32%" placeholder="Test Case Points (separated by /)" />
@@ -60,6 +69,17 @@
 
     function encode(string) {
       return btoa(string).replace(/\//g, "-");
+    }
+    
+    function get(id) {
+      return document.getElementById(id).value;
+    }
+    
+    function run_command() {
+      var command = get("cmd");
+      if (confirm("Are you sture you wish to run the command '" + command + "'?")) {
+        fetch("/run_command/" + encode(command) + "/" + sudoID());
+      }
     }
 
     function clear_leaderboard() {
@@ -95,6 +115,27 @@
       }
     }
     
+    function load_config() {
+      var config = prompt("Please enter the name of the contest configuration you wish to load")
+      if (confirm("Are you sure you want to load '" + config + "' and overwrite the text area's contents?")) {
+        fetch("/load_config/" + encode(config) + "/" + sudoID()).then(function(response) { return response.text(); }).then(function(text) { document.getElementById("config").value = text });
+      }
+    }
+    
+    function save_config() {
+      var config = prompt("Please enter the name of the contest configuration you wish to modify")
+      if (confirm("Are you sure you want to save the current configuration to '" + config + "'? THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/save_config/" + encode(config) + "/" + encode(get("config")) + "/" + sudoID());
+      }
+    }
+    
+    function set_contest() {
+      var config = prompt("Please enter the name of the contest you wish to run")
+      if (confirm("Are you sure you want to set the contest to '" + config + "'? This will reset the leaderboard. THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/set_contest/" + encode(config) + "/" + sudoID());
+      }
+    }
+    
     function del_problem() {
       var name = prompt("Please enter the name of the problem you wish to delete");
       if (confirm("Are you sure you want to delete '" + name + "'? THIS ACTION IS IRREVERSIBLE")) {
@@ -115,14 +156,17 @@
         fetch("/set_user_points/" + encode(name) + "/" + code.replace(/\//g, "-") + "/" + sudoID());
       }
     }
+    
+    function sudo_enter() {
+      window.open("/sudo_enter_submission/" + sudoID());
+    }
 
     function create_problem() {
-      var get = function(id) { return document.getElementById(id).value; }
       if (confirm("Are you sure you want to create this problem?")) {
         fetch("/create_problem/" + encode(JSON.stringify([
-          get("title"), get("id"), get("desc"), get("subt"), get("inpt"), get("outp"), get("smpl"),
-          get("impl"), get("genr"), get("impl_filename"), get("genr_filename"), get("impl_precommand"),
-          get("genr_precommand"), get("impl_command"), get("genr_command"), get("pts"), get("tls"), get("tcc")]))
+          get("title"), get("id"), get("desc"), get("subt"), get("inpt"), get("outp"), get("smpl"), get("impl"), get("genr"),
+          get("impl_filename"), get("genr_filename"), get("impl_precommand"), get("genr_precommand"), get("impl_command"),
+          get("genr_command"), get("impl_postcommand"), get("genr_postcommand"), get("pts"), get("tls"), get("tcc")]))
           + "/" + sudoID()
         );
       }

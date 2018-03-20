@@ -1,4 +1,2 @@
-count-up
-cat
-add-one
-string-reversal
+greedy-leprechauns
+lucky-business

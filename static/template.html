@@ -2,7 +2,7 @@
 
 <html>
   <head>
-    <title>Welcome Back - Programming Competition</title>
+    <title>Programming Competition</title>
   </head>
 
   <body>
@@ -26,7 +26,7 @@
         language: language,
         problem: problem
       };
-      fetch("/submit/" + btoa(JSON.stringify(json)).replace("/", ".")).then(function(response) {
+      fetch("/%s/" + btoa(JSON.stringify(json)).replace("/", ".")).then(function(response) {
         return response.text();
       }).then(function(text) {
         location.replace(text);

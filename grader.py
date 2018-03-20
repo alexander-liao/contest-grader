@@ -51,7 +51,7 @@ def flatten(gen):
   while True:
     yield from next(gen)
 
-def test(command, tests, cwd, output = print, user = None, index = 0, length = 0, debug = False):
+def test(command, tests, cwd, output = print, user = None, problem = "", debug = False):
   grader = flatten(grade(command, tests, cwd))
   total = 0
   while True:
@@ -70,8 +70,8 @@ def test(command, tests, cwd, output = print, user = None, index = 0, length = 0
       break
   if user:
     if user not in users:
-      users[user] = [0] * length
-    users[user][index] = max(users[user][index], total)
+      users[user] = {}
+    users[user][problem] = max(users[user].get(problem, 0), total)
   output("Total Points: %d / %d" % (total, sum(subtask["points"] for subtask in tests)))
 
 def do_tests(array, command, tests):
@@ -115,6 +115,7 @@ def get_data(name):
 submissions = {}
 
 def process_submission(username, code, language, problem):
+  username = username.strip()
   if len(username) > 100 or len(username) == 0:
     return "/urbad"
   submission = (username, language, problem, [])
@@ -135,21 +136,25 @@ def process_submission(username, code, language, problem):
       f.write(code)
     for command in commands[:-1]:
       call(shlex.split(command), cwd = foldername)
-    test(shlex.split(commands[-1]), get_data(problem), foldername, submission[3].append, username, problems.index(problem), len(problems))
+    test(shlex.split(commands[-1]), get_data(problem), foldername, submission[3].append, username, problem, len(problems))
     shutil.rmtree(foldername)
   threading.Thread(target = proc).start()
+  print("{username} created a submission in {language} for {problem} with id {id}".format(username = username, language = language, problem = problem, id = id))
+  print("=" * 50)
+  print(code)
+  print("=" * 50)
   return "/submission/%d" % id
 
 def get_sorted_users():
-  return sorted(list(users), key = lambda u: sum(users[u]), reverse = True)
+  return sorted(list(users), key = lambda u: sum(users[u].values()), reverse = True)
 
 def getProblems():
   with open("static/contest.txt", "r") as f:
     return f.read().splitlines()
 
 def fullname(name):
-  with open("static/problems/%s/problem.html" % name, "r", encoding = "utf8") as f:
-    return f.read().split("\n")[0][5:-4]
+  with open("static/problems/%s/problem.json" % name, "r", encoding = "utf8") as f:
+    return json.loads(f.read())["title"]
 
 def getFullNames():
   return list(map(fullname, getProblems()))
@@ -165,6 +170,7 @@ def serveRoot():
 
 @app.route("/sudo")
 def sudo():
+  print("User accessed SUDO page!")
   with open("static/sudo.html", "r") as f:
     return f.read()
 
@@ -182,34 +188,48 @@ def clear_leaderboard(userhash):
   global users
   if userhash == serverhash:
     users = {}
+    print("Leaderboard cleared!")
+  else:
+    print("Invalid password for clearing leaderboard!")
   return ""
 
 @app.route("/kick_leaderboard/<username>/<userhash>")
 def kick_leaderboard(username, userhash):
   global users
   if userhash == serverhash:
-    __kick_leaderboard(decode(username))
+    __kick_leaderboard(decode(username).strip())
+  else:
+    print("Invalid password for kicking user!")
   return ""
 
 def __kick_leaderboard(username):
   if username in users:
     del users[username]
+    print("Kicked {username} from the leaderboard!".format(username = username))
+  else:
+    print("Could not kick {username} from the leaderboard because the user does not exist!".format(username = username))
 
 @app.route("/set_user_points/<username>/<points>/<userhash>")
 def set_user_points(username, points, userhash):
   global users
   if userhash == serverhash:
-    __set_points(decode(username), list(map(int, points.split("-"))))
+    __set_points(decode(username).strip(), list(map(int, points.split("-"))))
+  else:
+    print("Invalid password for setting user points!")
   return ""
 
 def __set_points(username, points):
   users[username] = points
+  print("Set {username}'s points to {points}".format(username = username, points = points))
 
 @app.route("/stop_contest/<userhash>")
 def stop_contest(userhash):
   global running
   if userhash == serverhash:
     running = False
+    print("Contest stopped!")
+  else:
+    print("Invalid password for stopping contest!")
   return ""
 
 @app.route("/start_contest/<userhash>")
@@ -217,25 +237,33 @@ def start_contest(userhash):
   global running
   if userhash == serverhash:
     running = True
+    print("Contest started!")
+  else:
+    print("Invalid password for starting contest!")
   return ""
 
 @app.route("/add_problem/<problem_name>/<userhash>")
 def add_problem(problem_name, userhash):
   if userhash == serverhash:
-    __add_problem(decode(problem_name))
+    __add_problem(decode(problem_name).strip())
+  else:
+    print("Invalid password for adding problem!")
   return ""
 
 def __add_problem(name):
   if name in os.listdir("static/problems"):
     with open("static/contest.txt", "a", encoding = "utf-8") as f:
       f.write(name + "\n")
-    for user in users:
-      users[user] += [0]
+    print("Added {name} to the contest!".format(name = name))
+  else:
+    print("Could not add {name} to the contest because the problem does not exist!".format(name = name))
 
 @app.route("/rm_problem/<problem_name>/<userhash>")
 def rm_problem(problem_name, userhash):
   if userhash == serverhash:
-    __rm_problem(decode(problem_name))
+    __rm_problem(decode(problem_name).strip())
+  else:
+    print("Invalid password for removing problem!")
   return ""
 
 def __rm_problem(name):
@@ -243,100 +271,207 @@ def __rm_problem(name):
     lines = f.read().splitlines()
   index = lines.index(name) if name in lines else -1
   if index != -1:
-    for user in users:
-      del users[user][index]
+    print("Removed {name} from the contest!".format(name = name))
+  else:
+    print("Could not remove {name} from the contest because the problem was not in the contest!".format(name = name))
   with open("static/contest.txt", "w", encoding = "utf-8") as f:
-    f.write("\n".join(line for line in lines if line != name))
+    f.write("\n".join(line for line in lines if line != name) + "\n")
 
 @app.route("/reset_contest/<userhash>")
 def reset_contest(userhash):
   if userhash == serverhash:
     __reset_contest()
+    print("Contest reset!")
+  else:
+    print("Invalid password for resetting the contest!")
   return ""
 
 def __reset_contest():
   with open("static/contest.txt", "w", encoding = "utf-8") as f:
     f.write("")
 
+@app.route("/set_contest/<contest>/<userhash>")
+def set_contest(contest, userhash):
+  if userhash == serverhash:
+    __set_contest(decode(contest))
+  else:
+    print("Invalid password for setting the contest!")
+  return ""
+
+def __set_contest(contest):
+  global users
+  if contest + ".config" in os.listdir("static/contests"):
+    with open("static/contests/" + contest + ".config", "r", encoding = "utf-8") as f:
+      with open("static/contest.txt", "w", encoding = "utf-8") as g:
+        g.write(f.read())
+        users = {}
+    print("Set the contest to " + contest + "!")
+  else:
+    print("Could not find contest " + contest + "!")
+
+@app.route("/load_config/<contest>/<userhash>")
+def load_config(contest, userhash):
+  if userhash == serverhash:
+    return __load_config(decode(contest))
+  else:
+    print("Invalid password for loading a contest configuration!")
+  return ""
+
+def __load_config(contest):
+  if contest + ".config" in os.listdir("static/contests"):
+    print("Loaded configuration for contest " + contest + "!")
+    with open("static/contests/" + contest + ".config", "r", encoding = "utf-8") as f:
+      return f.read().strip()
+  else:
+    print("Could not find contest " + contest + "!")
+    return ""
+
+@app.route("/save_config/<contest>/<config>/<userhash>")
+def save_config(contest, config, userhash):
+  if userhash == serverhash:
+    __save_config(decode(contest), decode(config))
+  else:
+    print("Invalid password for setting a contest configuration!")
+  return ""
+
+def __save_config(contest, config):
+  with open("static/contests/" + contest + ".config", "w", encoding = "utf-8") as f:
+    f.write(config)
+  print("Set configuration for contest " + contest + "!")
+
 @app.route("/del_problem/<problem_name>/<userhash>")
 def del_problem(problem_name, userhash):
   if userhash == serverhash:
-    __del_problem(decode(problem_name))
+    __del_problem(decode(problem_name).strip())
+  else:
+    print("Invalid password for deleting a problem!")
   return ""
 
 def __del_problem(name):
   shutil.rmtree("static/problems/" + name)
+  print("Deleted {name} permanently!".format(name = name))
   __rm_problem(name)
 
 @app.route("/create_problem/<content>/<userhash>")
 def create_problem(content, userhash):
-  if userhash == serverhash:
-    title, problem_id, desc, subt, inpt, outp, smpl, impl, genr, impl_filename, genr_filename, impl_precommand, genr_precommand, impl_command, genr_command, pts, tls, tcc = json.loads(decode(content))
-    if problem_id in os.listdir("static/problems"):
-      shutil.rmtree("static/problems/" + problem_id)
-    with open("static/problem_format.html", "r", encoding = "utf-8") as f:
-      smpl = smpl.split("\n")
-      smpl = [(smpl[i * 2], smpl[i * 2 + 1]) for i in range(len(smpl) // 2)]
-      problem_html = f.read() % (title, title, title, desc, subt, inpt, outp, "\n".join("<h3>Sample Input</h3>\n<table><tr><td><code>%s</code></td></tr></table>\n<h3>Sample Output</h3>\n<table><tr><td><code>%s</code></td></tr></table>" % (case[0], case[1]) for case in smpl))
-      os.mkdir("static/problems/" + problem_id)
-      os.chdir("static/problems/" + problem_id)
-      with open("problem.html", "w") as f:
-        f.write(problem_html)
-      with open(impl_filename, "w") as f:
-        f.write(impl)
-      with open(genr_filename, "w") as f:
-        f.write(genr)
-      os.system(impl_precommand)
-      os.system(genr_precommand)
-      pts = list(map(int, pts.split("/")))
-      tls = list(map(int, tls.split("/"))) * (len(pts) if "/" not in tls else 1)
-      tcc = list(map(int, tcc.split("/"))) * (len(pts) if "/" not in tcc else 1)
-      tests = []
-      impl_command, genr_command = shlex.split(impl_command), shlex.split( genr_command)
-      for suiteno, (pt, tl, tc) in enumerate(zip(pts, tls, tcc)):
-        attrs = {}
-        tests.append(attrs)
-        attrs["timelimit"] = tl
-        attrs["points"] = pt
-        test_cases = []
-        attrs["tests"] = test_cases
-        for _ in range(tc):
-          test_in = check_output(genr_command, input = bytes(str(suiteno), "utf-8"))
-          test_out = check_output(impl_command, input = test_in)
-          test_cases.append((test_in.decode("utf-8"), test_out.decode("utf-8")))
-      with open("tests.json", "w") as f:
-        f.write(json.dumps(tests, indent = 4))
-      os.remove(impl_filename)
-      os.remove(genr_filename)
-    os.chdir("../../..")
+  try:
+    if userhash == serverhash:
+      title, problem_id, desc, subt, inpt, outp, smpl, impl, genr, impl_filename, genr_filename, impl_precommand, genr_precommand, impl_command, genr_command, impl_postcommand, genr_postcommand, pts, tls, tcc = json.loads(decode(content))
+      print("[-- creating problem {problem_id} --]".format(problem_id = problem_id))
+      print("=" * 50)
+      print(impl)
+      print("=" * 50)
+      print(genr)
+      print("=" * 50)
+      if problem_id in os.listdir("static/problems"):
+        print("* deleting existing problem {problem_id}...".format(problem_id = problem_id))
+        shutil.rmtree("static/problems/" + problem_id)
+      with open("static/problem_format.html", "r", encoding = "utf-8") as f:
+        smpl = smpl.split("\n")
+        smpl = [(smpl[i * 2], smpl[i * 2 + 1]) for i in range(len(smpl) // 2)]
+        problem_json = json.dumps({
+          "title": title,
+          "desc": desc,
+          "subt": subt,
+          "inpt": inpt,
+          "outp": outp,
+          "smpl": smpl
+        })
+        print("* creating problem folder...")
+        os.mkdir("static/problems/" + problem_id)
+        os.chdir("static/problems/" + problem_id)
+        print("* writing problem JSON file...")
+        with open("problem.json", "w") as f:
+          f.write(problem_json)
+        with open(impl_filename, "w") as f:
+          f.write(impl)
+        with open(genr_filename, "w") as f:
+          f.write(genr)
+        print("* running pre-commands...")
+        os.system(impl_precommand)
+        os.system(genr_precommand)
+        pts = list(map(int, pts.split("/")))
+        tls = list(map(int, tls.split("/"))) * (len(pts) if "/" not in tls else 1)
+        tcc = list(map(int, tcc.split("/"))) * (len(pts) if "/" not in tcc else 1)
+        tests = []
+        impl_command, genr_command = shlex.split(impl_command), shlex.split( genr_command)
+        for suiteno, (pt, tl, tc) in enumerate(zip(pts, tls, tcc)):
+          print("* generating suite {suiteno} of {total}...".format(suiteno = suiteno + 1, total = len(pts)))
+          attrs = {}
+          tests.append(attrs)
+          attrs["timelimit"] = tl
+          attrs["points"] = pt
+          test_cases = []
+          attrs["tests"] = test_cases
+          for case in range(tc):
+            test_in = check_output(genr_command, input = bytes(str(suiteno) + "\n" + str(case), "utf-8"))
+            test_out = check_output(impl_command, input = test_in)
+            test_cases.append((test_in.decode("utf-8"), test_out.decode("utf-8")))
+        print("* writing test case JSON file...")
+        with open("tests.json", "w") as f:
+          f.write(json.dumps(tests, indent = 4))
+        print("* running post-commands...")
+        os.system(impl_postcommand)
+        os.system(genr_postcommand)
+        print("* cleaning up generation files...")
+        os.remove(impl_filename)
+        os.remove(genr_filename)
+      os.chdir("../../..")
+      print("* done!")
+    else:
+      print("Invalid password for creating a problem!")
+  except:
+    os.chdir("/home/cabox/workspace/contest-grader")
   return ""
 
 @app.route("/problem/<int:id>")
 def problem(id):
   if not running: return "<h2>Contest is currently paused...</h2>"
-  with open("static/problems/%s/problem.html" % getProblems()[id], "r") as f:
-    return f.read()
+  with open("static/problems/%s/problem.json" % getProblems()[id], "r") as p:
+    with open("static/problem_format.html", "r") as f:
+      p = json.loads(p.read())
+      title = p["title"]
+      desc = p["desc"]
+      subt = p["subt"]
+      inpt = p["inpt"]
+      outp = p["outp"]
+      smpl = p["smpl"]
+      return f.read() % (title, title, title, desc.replace("\n", "<br />"), inpt.replace("\n", "<br />"), outp.replace("\n", "<br />"), subt.replace("\n", "<br />"), "\n".join("<h3>Sample Input</h3>\n<table><tr><td><code>%s</code></td></tr></table>\n<h3>Sample Output</h3>\n<table><tr><td><code>%s</code></td></tr></table>" % (case[0], case[1]) for case in smpl))
 
 @app.route("/leaderboard")
 def leaderboard():
+  problems = getProblems()
+  config = {user: [users[user].get(problem, 0) for problem in problems] for user in get_sorted_users()}
   return open("static/leaderboard.html", "r").read() % "".join(
-    "<tr><td>%s</td><td>%d (%s)</td></tr>" % (html.escape(user), sum(users[user]), " / ".join(map(str, users[user]))) for user in get_sorted_users())
+    "<tr><td>%s</td><td>%d (%s)</td></tr>" % (html.escape(user), sum(config[user]), " / ".join(map(str, config[user]))) for user in config)
 
 @app.route("/enter_submission")
 def enter_submission():
   if not running: return "<h2>Contest is currently paused...</h2>"
-  with open("static/template.html", "r") as f:
-    return f.read() % (
-      "".join(
-        "<option value='{language}'>{language}</option>".format(language = language)
-      for language in name_to_command.keys()),
-      "".join(
-        "<option value='{id}'>{problem}</option>".format(id = p, problem = getFullNames()[i])
-      for i, p in enumerate(getProblems())))
+  return sudo_enter_submission(serverhash, False)
+  
+@app.route("/sudo_enter_submission/<userhash>")
+def sudo_enter_submission(userhash, sudomode = True):
+  if userhash == serverhash:
+    with open("static/template.html", "r") as f:
+      return f.read() % (
+        "".join(
+          "<option value='{language}'>{language}</option>".format(language = language)
+        for language in name_to_command.keys()),
+        "".join(
+          "<option value='{id}'>{problem}</option>".format(id = p, problem = getFullNames()[i])
+        for i, p in enumerate(getProblems())),
+      "submit_sudo/" + userhash if sudomode else "submit")
+  else:
+    return "<a href='/'>what are you doing here</a>"
 
 @app.route("/submit/<data>")
 def submit(data):
   if not running: return "/"
+  return process_submission(**json.loads(decode(data)))
+
+@app.route("/submit_sudo/<userhash>/<data>")
+def submit_sudo(userhash, data):
   return process_submission(**json.loads(decode(data)))
 
 @app.route("/submission/<int:id>")
@@ -344,6 +479,15 @@ def submission(id):
   if id not in submissions:
     return "<p style='font-family:monospace'>Sorry, submission not found with that ID.</p>"
   return "<style>body{font-family: monospace;}</style><a href='/'>&lt;&lt;&lt; Back</a><br /><br /><a href='/enter_submission'>Resubmit</a><br /><br />Submitted by '%s' in %s for %s<br /><br />" % submissions[id][:3] + "<br />".join(submissions[id][3])
+
+@app.route("/run_command/<command>/<userhash>")
+def run_command(command, userhash):
+  if userhash == serverhash:
+    print("Processing manual command `{command}`".format(command = decode(command)))
+    process_command(shlex.split(decode(command)))
+  else:
+    print("Invalid password for running command!")
+  return ""
 
 def process_command(command):
   if command == []:
@@ -371,10 +515,8 @@ def process_command(command):
       traceback.print_exc()
   elif command[0] == "shutdown":
     exit(0)
-
-def run_processor():
-  while True:
-    process_command(shlex.split(input(">>> ")))
+  else:
+    threading.Thread(target = lambda: [call(command)] and os.chdir("~/workspace/contest-grader")).start()
 
 if __name__ == "__main__":
   if len(sys.argv) >= 2:
@@ -388,5 +530,4 @@ if __name__ == "__main__":
     serverhash = sys.argv[2]
   else:
     serverhash = "7d509328bd69ef7406baf28bd9897c0bf724d8d716b014d0f95f2e8dd9c43a06"
-  threading.Thread(target = run_processor).start()
   app.run(host = "0.0.0.0", port = port, debug = "--debug" in sys.argv)
