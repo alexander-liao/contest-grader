@@ -1,0 +1,26 @@
+{
+    "impl_filename": "impl.py",
+    "title": "Sample Problem: Modular Exponentiation!",
+    "impl_postcommand": "",
+    "genr_postcommand": "",
+    "inpt": "The input will consist of a single line of input containing three space-separated integers, a, b, and c.",
+    "tcc": "20",
+    "subt": "For 10 of the available 100 marks, a, b, c &le; 100.\nFor another 20 of the available 100 marks, a, b, c &le; 10<sup>4</sup>.\nFor the remaining 70 marks, a, b, c &le; 10<sup>8</sup>.",
+    "outp": "d, on a single line.",
+    "tags": [
+        "easy",
+        "math"
+    ],
+    "genr_command": "python3 genr.py",
+    "tls": "1",
+    "pts": "10/20/70",
+    "desc": "Given three positive integers a, b, and c, output the smallest positive integer d such that a<sup>b &equiv; d (mod c).",
+    "id": "mod-exp",
+    "impl_precommand": "",
+    "genr_precommand": "",
+    "impl": "print(pow(*map(int, input().split())))",
+    "impl_command": "python3 impl.py",
+    "smpl": "2 5 10\n2\n3 4 8\n1",
+    "genr": "import random\n\nmaxval = [100, 10000, 100000000][int(input())]\n\na = random.randint(1, maxval)\nb = random.randint(1, maxval)\nc = random.randint(1, maxval)\n\nprint(a, b, c)",
+    "genr_filename": "genr.py"
+}

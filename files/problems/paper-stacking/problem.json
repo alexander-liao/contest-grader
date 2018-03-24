@@ -1,0 +1,27 @@
+{
+    "id": "paper-stacking",
+    "genr_precommand": "",
+    "desc": "Vera is stacking some paper! Each paper has a length <code>l</code> and a width <code>w</code>. Vera can only stack paper <code>A</code> on top of paper <code>B</code> if and only if <code>A.l &le; B.l</code> and <code>A.w &le; B.w</code>. Determine the tallest possible stack of paper.",
+    "tags": [
+        "dynamic-programming",
+        "optimization",
+        "longest-subsequence"
+    ],
+    "genr": "from random import randint\nn = int(input())\nm = 10**(n//100+1)\nN = randint(m//10,m)\nprint(N)\nfor _ in range(N):\n  print(randint(1,10**9),randint(1,10**9))",
+    "impl_postcommand": "",
+    "tcc": "100",
+    "smpl": "4 <br />1 2<br />3 4<br />1 3<br />1 4\n4",
+    "outp": "Output the number of papers in the tallest possible stack of paper.",
+    "genr_filename": "paperGen.py",
+    "impl_precommand": "",
+    "subt": "For all of the test cases, <code>l &le; 10<sup>9</sup></code> and <code>w &le; 10<sup>9</sup></code>\n\nFor 10% of the available 100 points, <code>N &le; 10</code>.\nFor an additional 20% of the available 100 points, <code>N &le; 100</code>.\nFor the remaining 70% of the marks, <code>N &le; 1000</code>.",
+    "impl_command": "python3 paperSol.py",
+    "genr_postcommand": "",
+    "inpt": "The first line will contain a single integer N. \nThe next N lines will contain two space-separated integers l and w, the length and width.",
+    "genr_command": "python3 paperGen.py",
+    "title": "Sample Problem: Paper Stacking",
+    "impl": "N = int(input())\npaper = [list(map(int,input().split())) for _ in range(N)]\npaper.sort()\ndp = [1 for _ in range(N)]\nfor index in range(1,N):\n  for prev in range(index):\n    if paper[prev][1] <= paper[index][1]:\n      dp[index] = max(dp[index],dp[prev]+1)\nprint(max(dp))",
+    "pts": "10/20/70",
+    "impl_filename": "paperSol.py",
+    "tls": "5"
+}

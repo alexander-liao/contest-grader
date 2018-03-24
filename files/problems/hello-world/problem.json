@@ -1,0 +1,27 @@
+{
+    "id": "hello-world",
+    "genr_precommand": "",
+    "desc": "Given no input, output the exact text <code>\"Hello, World!\"</code>",
+    "tags": [
+        "easy",
+        "classic",
+        "static-output"
+    ],
+    "genr": "",
+    "impl_postcommand": "",
+    "tcc": "20",
+    "smpl": "\nHello, World!",
+    "outp": "The exact text <code>\"Hello, World!\"</code> on one line; surrounding whitespace is ignored.",
+    "genr_filename": "g.py",
+    "impl_precommand": "",
+    "subt": "N/A.",
+    "impl_command": "python3 i.py",
+    "genr_postcommand": "",
+    "inpt": "No input will be given.",
+    "genr_command": "python3 g.py",
+    "title": "Sample Problem: Hello, World!",
+    "impl": "print(\"Hello, World!\")",
+    "pts": "100",
+    "impl_filename": "i.py",
+    "tls": "1"
+}

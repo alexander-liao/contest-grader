@@ -1,0 +1,27 @@
+{
+    "id": "greedy-leprechauns",
+    "genr_precommand": "",
+    "desc": "Today, when Anna walked outside, she noticed that her field had a rainbow in it! As she looked closer, she found out that there were N rainbows! At the end of each rainbow was a leprechaun with a pot of gold. Each leprechaun can be bribed for t gold coins and his pot contains p gold coins. You may spend t gold coins (if you have enough) to bribe the leprechaun, and if you do so, the leprechaun will let you pass and you can take their pot of gold. You must move through all of the leprechauns in order and if a leprechaun does not allow you to pass because you do not bribe it or you have insufficient funds, you must exit. Your job is to determine the maximum amount of counts obtainable!",
+    "tags": [
+        "easy",
+        "non-greedy",
+        "optimization"
+    ],
+    "genr": "import random\n\nN = random.randint(1, 100000)\nM = random.randint(1, 1000000000)\n\nprint(N, M)\n\nfor _ in range(N):\n    t = random.randint(1, 1000000000)\n    p = random.randint(1, 1000000000)\n    print(t, p)",
+    "impl_postcommand": "",
+    "tcc": "50",
+    "smpl": "4 5<br />1 2<br />10 100<br />1 1<br />10 10\n6",
+    "outp": "The output will consist of a single integer representing the maximum number of coins Anna could have, where she starts with M coins.",
+    "genr_filename": "genr.py",
+    "impl_precommand": "",
+    "subt": "For all test cases, <code>t, p, M &le; 10<sup>9</sup></code> and <code>N &le; 10<sup>5</sup></code>\nNote that t and p can be negative.",
+    "impl_command": "python3 impl.py",
+    "genr_postcommand": "",
+    "inpt": "The first line will contain two integers N and M.\nThe next N lines will contain two integers each, t and p, which are the cost to bribe a leprechaun and the amount of gold in his pot.",
+    "genr_command": "python3 genr.py",
+    "title": "2018-03-21--P1: Greedy Leprechauns",
+    "impl": "N, M = map(int, input().split())\ncoins = M\nfor _ in range(N):\n    t, p = map(int, input().split())\n    if t > M:\n        break\n    M -= t\n    M += p\n    coins = max(coins, M)\nprint(coins)",
+    "pts": "100",
+    "impl_filename": "impl.py",
+    "tls": "5"
+}
