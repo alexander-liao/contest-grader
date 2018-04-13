@@ -2,79 +2,111 @@
 <html>
   <head>
     <title>SUDO</title>
-    <script src="js-sha"></script>
+    <script src="/js-sha"></script>
+    <script src="/authjs"></script>
     <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
   </head>
 
   <body>
-    <b>SUDO-MODE ID</b>&nbsp;&nbsp;<input type="password" id="pwd" /><hr />
+    <div id="auth_bar">
+      <button class="buttonlink" onclick="sign_in()">&nbsp;&nbsp;&nbsp;Sign In&nbsp;&nbsp;&nbsp;</button>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_up()">&nbsp;&nbsp;&nbsp;Sign Up&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="user_bar" hidden>
+      <a id="home_button"  class="buttonlink enable" disabled href="/account"></a>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_out()">&nbsp;&nbsp;&nbsp;Sign Out&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="sign-in" hidden>
+      <br />
+      <input id="username" style="width:25%%" type="text" placeholder="Username" />
+      <input id="password" style="width:25%%" type="password" placeholder="Password" />
+      <input id="repeated" style="width:25%%" type="password" placeholder="Password Again" hidden />
+      <button class="buttonlink" onclick="auth()">&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;</button>
+    </div>
+    <hr />
     <input type="text" id="cmd" style="font-family:monospace;width:75%" placeholder="command" />
-    <button class="buttonlink" onclick="run_command()">Run Command</button><hr /><br />
-    <button class="buttonlink" onclick="clear_leaderboard()">Clear Leaderboard</button>
-    <button class="buttonlink" onclick="kick_leaderboard()">Kick a user from Leaderboard</button>
+    <button class="buttonlink enable" disabled onclick="run_command()">Run Command</button><hr /><br />
+    <button class="buttonlink enable" disabled onclick="clear_leaderboard()">Delete all users</button>
+    <button class="buttonlink enable" disabled onclick="kick_leaderboard()">Delete a user</button>
     <br /><br />
-    <button class="buttonlink" onclick="add_problem()">Add problem</button>
-    <button class="buttonlink" onclick="rm_problem()">Remove problem</button>
-    <button class="buttonlink" onclick="reset_contest()">Reset contest</button>
-    <button class="buttonlink" onclick="set_contest()">Set contest</button>
-    <button class="buttonlink" onclick="del_problem()">Delete problem</button>
+    <button class="buttonlink enable" disabled onclick="add_problem()">Add problem</button>
+    <button class="buttonlink enable" disabled onclick="rm_problem()">Remove problem</button>
+    <button class="buttonlink enable" disabled onclick="reset_contest()">Reset contest</button>
+    <button class="buttonlink enable" disabled onclick="set_contest()">Set contest</button>
+    <button class="buttonlink enable" disabled onclick="del_problem()">Delete problem</button>
     <br /><br />
-    <button class="buttonlink" onclick="contest_mode('stop')">Stop contest</button>
-    <button class="buttonlink" onclick="contest_mode('start')">Start contest</button>
-    <button class="buttonlink" onclick="set_user_points()">Set user points</button>
-    <button class="buttonlink" onclick="sudo_enter()">Sudo Enter Submission</button>
+    <button class="buttonlink enable" disabled onclick="contest_mode('stop')">Stop contest</button>
+    <button class="buttonlink enable" disabled onclick="contest_mode('start')">Start contest</button>
+    <button class="buttonlink enable" disabled onclick="set_user_points()">Set user points</button>
+    <button class="buttonlink enable" disabled onclick="sudo_enter()">Sudo Enter Submission</button>
     <br /><br /><hr /><br />
-    <button class="buttonlink" onclick="load_config()">Load contest configuration</button>
-    <button class="buttonlink" onclick="save_config()">Save contest configuration</button>
+    <button class="buttonlink enable" disabled onclick="load_config()">Load contest configuration</button>
+    <button class="buttonlink enable" disabled onclick="save_config()">Save contest configuration</button>
     <br /><br />
     <textarea style="width:49%;height:5em;font-family:monospace" id="config" placeholder="Contest Configuration (Problems)"></textarea>
     <br /><br /><hr /><br />
-    <button class="buttonlink" onclick="edit_problem('/create_problem/')">Create problem</button>
-    <button class="buttonlink" onclick="edit_problem('/write_problem/')">Write problem</button>
-    <button class="buttonlink" onclick="load_problem()">Load problem</button>
+    <button class="buttonlink enable" disabled onclick="edit_problem('/create_problem/')">Create problem</button>
+    <button class="buttonlink enable" disabled onclick="edit_problem('/write_problem/')">Write problem</button>
+    <button class="buttonlink enable" disabled onclick="load_problem()">Load problem</button>
     <br /><br />
     <input type="text" id="title" style="width:49%;font-family:monospace" placeholder="Title" />
     <input type="text" id="id" style="width:49%;font-family:monospace" placeholder="Problem ID" />
     <br /><br />
-    <input type="text" id="tags" style="width:75%;font-family:monospace" placeholder="Comma-separated tags" />
+    <input type="text" id="tags" style="width:49%;font-family:monospace" placeholder="Comma-separated tags" />
+    <input type="text" id="ctst" style="width:49%;font-family:monospace" placeholder="Contest/Problem Category" />
     <br /><br />
-    <div>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
-      <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
-      <textarea style="width:99%;height:5em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
-      <textarea style="width:49%;height:10em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the problem)"></textarea>
-      <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, first line of STDIN represents which test suite is being generated and second line of STDIN represents which test case is being generated, output the exact text output for a single test case)"></textarea>
-    </div><br /><div>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="edit" placeholder="Editorial"></textarea>
+    <textarea style="width:49%;height:10em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the problem)"></textarea>
+    <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, first line of STDIN represents which test suite is being generated and second line of STDIN represents which test case is being generated, output the exact text output for a single test case)"></textarea>
+    <br />
+    <div style="line-height:2em">
       <input type="text" id="impl_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the sample implementation" />
       <input type="text" id="genr_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the test case generator" />
-    </div><br /><div>
+      <br />
       <input type="text" id="impl_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the sample implementation" />
       <input type="text" id="genr_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the test case generator" />
-    </div><br /><div>
+      <br />
       <input type="text" id="impl_command" style="font-family:monospace;width:49%" placeholder="Command to run the sample implementation" />
       <input type="text" id="genr_command" style="font-family:monospace;width:49%" placeholder="Command to run the test case generator" />
-    </div><br /><div>
+      <br />
       <input type="text" id="impl_postcommand" style="font-family:monospace;width:49%" placeholder="Post-command to run the sample implementation" />
       <input type="text" id="genr_postcommand" style="font-family:monospace;width:49%" placeholder="Post-command to run the test case generator" />
+      <br />
+      <input type="text" id="pts" style="font-family:monospace;width:49%" placeholder="Test Case Points (separated by /)" />
+      <input type="text" id="tls" style="font-family:monospace;width:23.8%" placeholder="Test Case Timelimits" />
+      <input type="text" id="tcc" style="font-family:monospace;width:23.8%" placeholder="Test Case Count" />
     </div>
-    <br />
-    <input type="text" id="pts" style="font-family:monospace;width:49%" placeholder="Test Case Points (separated by /)" />
-    <input type="text" id="tls" style="font-family:monospace;width:24%" placeholder="Test Case Timelimits" />
-    <input type="text" id="tcc" style="font-family:monospace;width:24%" placeholder="Test Case Count" />
-    <br />
   </body>
 
-  <script>
+  <script type="text/javascript">
+    function post_data(url, data, callback) {
+      fetch(url, {
+        method: "POST",
+        body: JSON.stringify(data)
+      })
+      .then(function (response) { return response.text(); })
+      .then(callback);
+    }
+
     function sudoID() {
-      var text = document.getElementById("pwd").value;
-      var jSha = new jsSHA("SHA-256", "TEXT");
-      jSha.update(text);
-      return jSha.getHash("HEX");
+      var array = decodeURIComponent(document.cookie.match(/grader_cred=[^;]+/)[0].split("=")[1]).split(";");
+      var username = array[0];
+      var password = array[1];
+      return username + "/" + password;
     }
 
     function encode(string) {
+      console.log("Encoding...");
+      console.log(string);
       return btoa(string).replace(/\//g, "-");
     }
     
@@ -84,7 +116,7 @@
     
     function run_command() {
       var command = get("cmd");
-      if (confirm("Are you sture you wish to run the command '" + command + "'?")) {
+      if (confirm("Are you sure you wish to run the command '" + command + "'?")) {
         fetch("/run_command/" + encode(command) + "/" + sudoID());
       }
     }
@@ -178,6 +210,7 @@
           "inpt": get("inpt"),
           "outp": get("outp"),
           "smpl": get("smpl"),
+          "edit": get("edit"),
           "impl": get("impl"),
           "genr": get("genr"),
           "impl_filename": get("impl_filename"),
