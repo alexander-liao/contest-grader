@@ -1,0 +1,100 @@
+{
+    "Riolku": {
+        "scores": {
+            "greedy-leprechauns": 30,
+            "binary-search-2": 40,
+            "binary-search-1": 30,
+            "lucky-business": 100,
+            "ccc18s4": 150,
+            "ecoo17r3p4": 300,
+            "four-leaf-clovers": 40,
+            "ccc18s3": 90,
+            "welcome-back-to-math": 30,
+            "ccc18j3": 20,
+            "hello-world": 10,
+            "ccc17s3": 40,
+            "ccc17j1": 20,
+            "runs-of-runs": 30,
+            "paper-stacking": 100,
+            "ccc17j2": 20,
+            "cat-and-wizard": 80,
+            "ccc18s2": 20,
+            "ccc18j5": 80,
+            "ccc18s1": 20,
+            "ccc18j2": 20,
+            "welcome-to-my-city": 70,
+            "string-finding": 30,
+            "mod-exp": 30,
+            "ccc18j1": 20,
+            "ccc17j4": 30,
+            "ccc17j3": 20,
+            "prime-sums": 50,
+            "string-finding-hard": 100,
+            "welcome-to-my-hotel": 40,
+            "ccc18s5": 200
+        },
+        "recency": 1523840971.9886284,
+        "password": "5423e101ab4daea5abbab828fc4ccf8d4624a7b856c0a3b223e2faa6763788c3"
+    },
+    "test": {
+        "scores": {},
+        "recency": 1523754009.940314,
+        "password": "94ee059335e587e501cc4bf90613e0814f00a7b08bc7c648fd865a2af6a22cc2"
+    },
+    "tmanti": {
+        "scores": {
+            "greedy-leprechauns": 30,
+            "ccc18s2": 20,
+            "ccc18s1": 20,
+            "hello-world": 10,
+            "welcome-to-my-city": 70,
+            "string-finding": 30
+        },
+        "recency": 1523473817.5923254,
+        "password": "c775e7b757ede630cd0aa1113bd102661ab38829ca52a6422ab782862f268646"
+    },
+    "amazingness222": {
+        "scores": {
+            "greedy-leprechauns": 30,
+            "ccc18s2": 20,
+            "mod-exp": 30,
+            "binary-search-1": 30,
+            "ccc18s1": 20,
+            "ccc18j2": 20,
+            "welcome-to-my-city": 70,
+            "string-finding": 30,
+            "binary-search-2": 40,
+            "ccc18j1": 20,
+            "welcome-to-my-hotel": 16,
+            "four-leaf-clovers": 40,
+            "ccc18j3": 20,
+            "prime-sums": 20,
+            "welcome-back-to-math": 30,
+            "hello-world": 10,
+            "runs-of-runs": 30
+        },
+        "recency": 1523476691.027598,
+        "password": "a511aeeeb8a119931a67038a63b7974faee48712de1c79391ebe2c9b929678e9"
+    },
+    "hyper-neutrino": {
+        "scores": {
+            "greedy-leprechauns": 30,
+            "ccc18s2": 20,
+            "string-finding-hard": 100,
+            "lucky-business": 100,
+            "welcome-to-my-city": 70,
+            "mod-exp": 30,
+            "four-leaf-clovers": 40,
+            "runs-of-runs": 30,
+            "ccc18j3": 20,
+            "prime-sums": 50,
+            "welcome-back-to-math": 30,
+            "hello-world": 10,
+            "welcome-to-my-hotel": 40,
+            "paper-stacking": 100,
+            "cat-and-wizard": 80
+        },
+        "recency": 1523475217.4827793,
+        "password": "e823f433040264eac074a521aac62167c37a8323cbfb7437f041c676d430ddbc"
+    }
+}

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SUDO</title>
+    <script src="/js-sha"></script>
+    <script src="/authjs"></script>
+    <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+  </head>
+
+  <body>
+    <div id="auth_bar">
+      <button class="buttonlink" onclick="sign_in()">&nbsp;&nbsp;&nbsp;Sign In&nbsp;&nbsp;&nbsp;</button>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_up()">&nbsp;&nbsp;&nbsp;Sign Up&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="user_bar" hidden>
+      <a id="home_button"  class="buttonlink enable" disabled href="/"></a>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_out()">&nbsp;&nbsp;&nbsp;Sign Out&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="sign-in" hidden>
+      <br />
+      <input id="username" style="width:25%%" type="text" placeholder="Username" />
+      <input id="password" style="width:25%%" type="password" placeholder="Password" />
+      <input id="repeated" style="width:25%%" type="password" placeholder="Password Again" hidden />
+      <button class="buttonlink" onclick="auth()">&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;</button>
+    </div>
+    <hr />
+    <input type="text" id="cmd" style="font-family:monospace;width:75%" placeholder="command" />
+    <button class="buttonlink enable" disabled onclick="run_command()">Run Command</button><hr /><br />
+    <button class="buttonlink enable" disabled onclick="clear_leaderboard()">Delete all users</button>
+    <button class="buttonlink enable" disabled onclick="kick_leaderboard()">Delete a user</button>
+    <br /><br />
+    <button class="buttonlink enable" disabled onclick="add_problem()">Add problem</button>
+    <button class="buttonlink enable" disabled onclick="rm_problem()">Remove problem</button>
+    <button class="buttonlink enable" disabled onclick="reset_contest()">Reset contest</button>
+    <button class="buttonlink enable" disabled onclick="set_contest()">Set contest</button>
+    <button class="buttonlink enable" disabled onclick="del_problem()">Delete problem</button>
+    <br /><br />
+    <button class="buttonlink enable" disabled onclick="contest_mode('stop')">Start Maintenance</button>
+    <button class="buttonlink enable" disabled onclick="contest_mode('start')">Stop Maintenance</button>
+    <button class="buttonlink enable" disabled onclick="set_user_points()">Set user points</button>
+    <br /><br /><hr /><br />
+    <button class="buttonlink enable" disabled onclick="load_config()">Load contest configuration</button>
+    <button class="buttonlink enable" disabled onclick="save_config()">Save contest configuration</button>
+    <br /><br />
+    <textarea style="width:49%;height:5em;font-family:monospace" id="config" placeholder="Contest Configuration (Problems)"></textarea>
+    <br /><br /><hr /><br />
+    <button class="buttonlink enable" disabled onclick="edit_problem('/create_problem')">Create problem</button>
+    <button class="buttonlink enable" disabled onclick="edit_problem('/write_problem')">Write problem</button>
+    <button class="buttonlink enable" disabled onclick="load_problem()">Load problem</button>
+    <br /><br />
+    <input type="text" id="title" style="width:49%;font-family:monospace" placeholder="Title" />
+    <input type="text" id="id" style="width:49%;font-family:monospace" placeholder="Problem ID" />
+    <br /><br />
+    <input type="text" id="tags" style="width:49%;font-family:monospace" placeholder="Comma-separated tags" />
+    <input type="text" id="ctst" style="width:49%;font-family:monospace" placeholder="Contest/Problem Category" />
+    <br /><br />
+    <textarea style="width:49%;height:5em;font-family:monospace" id="desc" placeholder="Challenge Description"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="inpt" placeholder="Input Specifications"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="outp" placeholder="Output Specifications"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="subt" placeholder="Subtask Specifications"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="smpl" placeholder="Sample I/O, alternating lines"></textarea>
+    <textarea style="width:49%;height:5em;font-family:monospace" id="edit" placeholder="Editorial"></textarea>
+    <textarea style="width:49%;height:10em;font-family:monospace" id="impl" placeholder="Correct Implementation (Full Program, enter as though a full scoring submission to the problem)"></textarea>
+    <textarea style="width:49%;height:10em;font-family:monospace" id="genr" placeholder="Test Case Generator (Full Program, first line of STDIN represents which test suite is being generated and second line of STDIN represents which test case is being generated, output the exact text output for a single test case)"></textarea>
+    <br />
+    <div style="line-height:2em">
+      <input type="text" id="impl_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the sample implementation" />
+      <input type="text" id="genr_filename" style="font-family:monospace;width:49%" placeholder="File location for storing the test case generator" />
+      <br />
+      <input type="text" id="impl_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the sample implementation" />
+      <input type="text" id="genr_precommand" style="font-family:monospace;width:49%" placeholder="Pre-command to run the test case generator" />
+      <br />
+      <input type="text" id="impl_command" style="font-family:monospace;width:49%" placeholder="Command to run the sample implementation" />
+      <input type="text" id="genr_command" style="font-family:monospace;width:49%" placeholder="Command to run the test case generator" />
+      <br />
+      <input type="text" id="impl_postcommand" style="font-family:monospace;width:49%" placeholder="Post-command to run the sample implementation" />
+      <input type="text" id="genr_postcommand" style="font-family:monospace;width:49%" placeholder="Post-command to run the test case generator" />
+      <br />
+      <input type="text" id="pts" style="font-family:monospace;width:49%" placeholder="Test Case Points (separated by /)" />
+      <input type="text" id="tls" style="font-family:monospace;width:23.8%" placeholder="Test Case Timelimits" />
+      <input type="text" id="tcc" style="font-family:monospace;width:23.8%" placeholder="Test Case Count" />
+    </div>
+  </body>
+
+  <script type="text/javascript">
+    function post_data(url, data, callback) {
+      data = data || {};
+      callback = callback || (e => e);
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(addSudoInfo(data))
+      })
+      .then(function (response) { return response.text(); })
+      .then(callback);
+    }
+    
+    function addSudoInfo(data) {
+      var array = decodeURIComponent(document.cookie.match(/grader_cred=[^;]+/)[0].split("=")[1]).split(";");
+      data["username"] = array[0];
+      data["password"] = array[1];
+      return data;
+    }
+
+    function encode(string) {
+      console.log("Encoding...");
+      console.log(string);
+      return btoa(string).replace(/\//g, "-");
+    }
+    
+    function get(id) {
+      return document.getElementById(id).value;
+    }
+    
+    function run_command() {
+      var command = get("cmd");
+      if (confirm("Are you sure you wish to run the command '" + command + "'?")) {
+        post_data("/run_command",{command: command});
+      }
+    }
+
+    function clear_leaderboard() {
+      if (confirm("Are you sure you want to clear the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
+        post_data("/clear_leaderboard", {});
+      }
+    }
+
+    function kick_leaderboard() {
+      var name = prompt("Please enter the name of the user you wish to remove");
+      if (name && confirm("Are you sure you want to kick '" + name + "' from the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
+        post_data("/kick_leaderboard", {name: name});
+      }
+    }
+
+    function add_problem() {
+      var name = prompt("Please enter the name of the problem you wish to add");
+      if (name && confirm("Are you sure you want to add '" + name + "' to the contest?")) {
+        post_data("/add_problem", {name: name});
+      }
+    }
+
+    function rm_problem() {
+      var name = prompt("Please enter the name of the problem you wish to remove");
+      if (name && confirm("Are you sure you want to remove '" + name + "' from the contest?")) {
+        post_data("/rm_problem", {name: name});
+      }
+    }
+    
+    function reset_contest() {
+      if (confirm("Are you sure you want to remove all problems from the contest?")) {
+        fetch("/reset_contest/" + sudoID());
+      }
+    }
+    
+    function load_config() {
+      var config = prompt("Please enter the name of the contest configuration you wish to load")
+      if (confirm("Are you sure you want to load '" + config + "' and overwrite the text area's contents?")) {
+        fetch("/load_config/" + encode(config) + "/" + sudoID()).then(function(response) { return response.text(); }).then(function(text) { document.getElementById("config").value = text });
+      }
+    }
+    
+    function save_config() {
+      var config = prompt("Please enter the name of the contest configuration you wish to modify")
+      if (confirm("Are you sure you want to save the current configuration to '" + config + "'? THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/save_config/" + encode(config) + "/" + encode(get("config")) + "/" + sudoID());
+      }
+    }
+    
+    function set_contest() {
+      var config = prompt("Please enter the name of the contest you wish to run")
+      if (confirm("Are you sure you want to set the contest to '" + config + "'? This will reset the leaderboard. THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/set_contest/" + encode(config) + "/" + sudoID());
+      }
+    }
+    
+    function del_problem() {
+      var name = prompt("Please enter the name of the problem you wish to delete");
+      if (confirm("Are you sure you want to delete '" + name + "'? THIS ACTION IS IRREVERSIBLE")) {
+        fetch("/del_problem/" + encode(name) + "/" + sudoID());
+      }
+    }
+
+    function contest_mode(mode) {
+      if (confirm("Are you sure you want to " + mode + " the contest?")) {
+        post_data("/" + mode + "_contest",{});
+      }
+    }
+
+    function set_user_points() {
+      var name = prompt("Please enter the name of the user whose points you wish to modify");
+      var prob = name && prompt("Please enter the name of the problem for which you would like to modify " + name + "'s points");
+      var pnts = name && prob && prompt("Please enter the points you wish to set for '" + name + "'");
+      if (name && prob && pnts && confirm("Are you sure you want to set points for '" + name + "' for problem '" + prob + "' to " + pnts + "?")) {
+        post_data("/set_user_points", {name: name, prob: prob, pnts: pnts});
+      }
+    }
+    
+
+
+    function edit_problem(url) {
+      if (confirm("Are you sure you want to create this problem?")) {
+        post_data(url,{
+          "title": get("title"),
+          "id": get("id"),
+          "desc": get("desc"),
+          "subt": get("subt"),
+          "inpt": get("inpt"),
+          "outp": get("outp"),
+          "smpl": get("smpl"),
+          "edit": get("edit"),
+          "impl": get("impl"),
+          "genr": get("genr"),
+          "ctst": get("ctst"),
+          "edit": get("edit"),
+          "impl_filename": get("impl_filename"),
+          "genr_filename": get("genr_filename"),
+          "impl_precommand": get("impl_precommand"),
+          "genr_precommand": get("genr_precommand"),
+          "impl_command": get("impl_command"),
+          "genr_command": get("genr_command"),
+          "impl_postcommand": get("impl_postcommand"),
+          "genr_postcommand": get("genr_postcommand"),
+          "pts": get("pts"),
+          "tls": get("tls"),
+          "tcc": get("tcc"),
+        "tags": get("tags")});
+        
+      }
+    }
+    
+    function load_problem() {
+      var name = prompt("Please enter the problem ID of the problem you wish to load");
+      if (confirm("Are you sure you want to load the problem into the problem creater and overwrite the text areas' contents?")) {
+        data = {problem:name}
+        fetch("/load_problem", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(addSudoInfo(data))
+      }).then(function (response) { return response.text(); }).then(function(text){
+          if (text != "") {
+            var data = JSON.parse(text);
+            for (var key in data) {
+              document.getElementById(key).value = data[key];
+            }
+          }
+        });
+      }
+    }
+  </script>
+</html>

@@ -1,0 +1,33 @@
+<html>
+  <head>
+    <title>Site under Maintenance</title>
+    <script src="/js-sha"></script>
+    <script src="/authjs"></script>
+    <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+  </head>
+
+  <body>
+    <div id="auth_bar">
+      <button class="buttonlink" onclick="sign_in()">&nbsp;&nbsp;&nbsp;Sign In&nbsp;&nbsp;&nbsp;</button>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_up()">&nbsp;&nbsp;&nbsp;Sign Up&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="user_bar" hidden>
+      <a id="home_button"  class="buttonlink enable" disabled href="/account"></a>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_out()">&nbsp;&nbsp;&nbsp;Sign Out&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="sign-in" hidden>
+      <br />
+      <input id="username" style="width:25%%" type="text" placeholder="Username" />
+      <input id="password" style="width:25%%" type="password" placeholder="Password" />
+      <input id="repeated" style="width:25%%" type="password" placeholder="Password Again" hidden />
+      <button class="buttonlink" onclick="auth()">&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;</button>
+    </div>
+    <h1>
+      Site under maintenance, please be patient.
+    </h1>
+  </body>
+</html>

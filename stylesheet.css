@@ -1,0 +1,82 @@
+body {
+  background-color: #111;
+  color: #eee;
+  font-family: monospace;
+  margin-left: 10vw;
+  margin-right: 10vw;
+  margin-top: 2em;
+  margin-bottom: 2em;
+}
+
+p {
+  color: #ccc;
+}
+
+a {
+  color: #eee;
+  text-decoration: solid #999 underline;
+}
+
+div.problem {
+  
+}
+
+.buttonlink, button {
+  background-color: #ccc5;
+  color: #eee;
+  font-family: monospace;
+  font-size: 100%;
+  padding: 6px;
+  text-decoration: none;
+  border: none;
+}
+
+.buttonlink:hover, button:hover {
+  background-color: #ccc7;
+  color: #eee;
+  font-family: monospace;
+  padding: 6px;
+  text-decoration: none;
+  border: none;
+}
+
+button:disabled, button[disabled], button:disabled:hover, button[disabled]:hover {
+  background-color: #ccc3;
+  color: #666;
+}
+
+hr {
+  border-color: #666;
+}
+
+.sample {
+  border: 1px solid #eee;
+}
+
+.leaderboard {
+  border: 1px solid #eee;
+  border-collapse: collapse;
+  padding: 5px;
+}
+
+option {
+  background-color: #222;
+}
+
+input, textarea, select {
+  background-color: #5557;
+  color: #eee;
+  font-family: monospace;
+  font-size: 100%;
+  border: none;
+  padding: 3px;
+}
+table{
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid #eee;
+  padding: 8px;
+}
+

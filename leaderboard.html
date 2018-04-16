@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+  </head>
+
+  <body style="font-family:monospace">
+    <div>
+      <a class="buttonlink" href="/">&lt;&lt;&lt; Back</a><br /><br />
+      <button id="toggler" class="buttonlink" onclick="show()">Show point composition</button>
+      <h1>Leaderboard</h1>
+      <table class="leaderboard"><tr class="leaderboard"><th class="leaderboard">Username</th><th class="leaderboard">Points</th><th hidden class="rcol leaderboard">Point Composition</th></tr>%s</table>
+    </div>
+  </body>
+  
+  <script>
+    function hide() {
+      var elements = document.getElementsByClassName("rcol");
+      for (var x = 0; x < elements.length; x++) {
+        elements[x].hidden = true;
+      }
+      document.getElementById("toggler").outerHTML = '<button id="toggler" class="buttonlink" onclick="show()">Show point composition</button>';
+    }
+    
+    function show() {
+      var elements = document.getElementsByClassName("rcol");
+      for (var x = 0; x < elements.length; x++) {
+        elements[x].hidden = false;
+      }
+      document.getElementById("toggler").outerHTML = '<button id="toggler" class="buttonlink" onclick="hide()">Hide point composition</button>';
+    }
+  </script>
+</html>

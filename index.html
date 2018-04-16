@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+  <title>Online CS Contests</title>
+  <script src="/js-sha"></script>
+  <script src="/authjs"></script>
+  <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+</head>
+
+<body style="font-family:monospace">
+  <div class="content">
+    <div id="auth_bar">
+      <button class="buttonlink" onclick="sign_in()">&nbsp;&nbsp;&nbsp;Sign In&nbsp;&nbsp;&nbsp;</button>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_up()">&nbsp;&nbsp;&nbsp;Sign Up&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="user_bar" hidden>
+      <a id="home_button" class="buttonlink" href="/account"></a>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_out()">&nbsp;&nbsp;&nbsp;Sign Out&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="sign-in" hidden>
+      <br />
+      <input id="username" style="width:25%%" type="text" placeholder="Username" />
+      <input id="password" style="width:25%%" type="password" placeholder="Password" />
+      <input id="repeated" style="width:25%%" type="password" placeholder="Password Again" hidden />
+      <button class="buttonlink" onclick="auth()">&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;</button>
+    </div>
+    <hr />
+    <input id="tags" type="text" placeholder="filter by tags (separate by commas)" oninput="update()" style="width:calc(80vw - 6px)" /><br /><br />
+    <input id="name" type="text" placeholder="filter by name" oninput="update()" style="width:calc(80vw - 6px)" /><br /><br />
+    <input id="ctst" type="text" placeholder="filter by contest/problem category" oninput="update()" style="width:calc(80vw - 6px)" />
+    <hr /><br />
+    <center><a class="buttonlink" href="/leaderboard">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Leaderboard&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></center><br /><br />
+    <center><a class="buttonlink" href="/enter_submission/_">&nbsp;&nbsp;Submit solutions here&nbsp;&nbsp;</a></center><br /><br />
+    <h1>
+      Featured Problems
+    </h1>
+    <table>
+      <tr><th>Problem Name</th><th>Category</th><th>Tags</th><th>Points</th><th>Editorial</th></tr>
+      %s
+    </table>
+    <h2>
+      Problems
+    </h2>
+    <table>
+      <tr><th>Problem Name</th><th>Category</th><th>Tags</th><th>Points</th><th>Editorial</th></tr>
+      %s
+    </table>
+    <br /><br />
+    <div align="center">
+      %s
+      <br /><br /><br />
+      <a id="prev" class="buttonlink" href="/page/%d">&lt;&lt;&lt; Previous Page</a>
+      <a id="next" class="buttonlink" href="/page/%d">Next Page &gt;&gt;&gt;</a>
+    </div>
+  </div>
+  <br /><br />
+  <div id="signal" hidden>
+    %s
+  </div>
+  <div id="contact" align="center">
+    <h1>
+      Contact Us
+    </h1>
+    <h3>
+    Email Questions to:<br />
+    gugek7502@wrdsb.ca<br />
+    alex.yj.liao@gmail.com
+    </h3>
+  </div>
+</body>
+
+<script type="text/javascript">
+  var page = document.getElementById("next").href.split("/")[4] - 1;
+  var signal = document.getElementById("signal").innerHTML;
+  if(signal==-1){
+    document.getElementById("next").hidden = true;
+  }
+  if(signal==1){
+    document.getElementById("prev").hidden = true;
+  }
+  function first10() {
+    var elems = document.getElementsByClassName("problems");
+    var count = 0;
+    if(document.getElementById("tags").value=="" && document.getElementById("name").value=="" && document.getElementById("ctst").value==""){
+      for(var index=0;index<elems.length;index++){
+        if(page*10 > index || (page+1)*10 <= index){
+          elems[index].hidden = true;
+        }
+      }
+    }
+    else{
+    for(var index=0;index<elems.length;index++){
+      if(count > 10){
+        elems[index].hidden = true;
+      }
+      if(!elems[index].hidden){
+        count++;
+      }
+    }
+    }
+  }
+  first10();
+  function fuzzy_find(string, substring) {
+    var y = 0;
+    string = string.toLowerCase();
+    substring = substring.toLowerCase();
+    outer: for (var x = 0; x < substring.length; x++) {
+      for (; y < string.length; y++) {
+        if (string[y] == substring[x]) {
+          y++;
+          continue outer;
+        }
+      }
+      return false;
+    }
+    return true;
+  }
+
+  function update() {
+    var tagmatch = document.getElementById("tags").value.split(", ").map(function f(x){return x.toLowerCase()});
+    var namematch = document.getElementById("name").value;
+    var ctstmatch = document.getElementById("ctst").value;
+    var tags = document.getElementsByClassName("tags");
+    var names = document.getElementsByClassName("name");
+    var ctsts = document.getElementsByClassName("ctst");
+    var elements = document.getElementsByClassName("problems");
+    for (var index = 0; index < tags.length; index++) {
+      var itemtags = tags[index].innerHTML.split(", ").map(function f(x){return x.toLowerCase()});
+      var name = names[index].innerHTML;
+      var ctst = ctsts[index].innerHTML;
+      while (name.endsWith("&nbsp;")) {
+        name = name.slice(0, -6);
+      }
+      name = name.toLowerCase();
+      var found = true;
+      for (var x = 0; x < tagmatch.length; x++) {
+        var subfound = false;
+        for (var y = 0; y < itemtags.length; y++) {
+          if (itemtags[y].indexOf(tagmatch[x]) != -1) {
+            subfound = true;
+          }
+        }
+        if (!subfound) {
+          found = false;
+          break;
+        }
+      }
+      found &= fuzzy_find(name, namematch);
+      found &= fuzzy_find(ctst, ctstmatch);
+      elements[index].hidden = !found;
+    }
+    first10();
+  }
+</script>
+
+</html>

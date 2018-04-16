@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Editorial for %s.</title>
+    <script src="/js-sha"></script>
+    <script src="/authjs"></script>
+    <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+  </head>
+
+  <body>
+    <div id="content">
+      <code><a class="buttonlink" href="/problem/%s">&lt;&lt;&lt; Back</a></code>
+      <h2>Please use the editorials only when stuck, and not to copy code or get free points. Use them to learn rather than to satisfy your point-hungry desires. Thank you.</h2>
+      <h1>Editorial for %s.</h1>
+      <code><h3><button id="button" class="buttonlink" onclick="toggle_editorial()">Show Editorial >>></button></h3></code>
+    </div>
+    <div id="editorial">
+      %s
+    </div>
+  </body>
+
+  <script type="text/javascript">
+    document.getElementById("editorial").hidden = true;
+    function toggle_editorial() {
+      var item = document.getElementById("editorial");
+      var button = document.getElementById("button");
+      if (item.hidden) {
+        button.innerHTML = "Hide Editorial <<<";
+        item.hidden = false;
+      } else {
+        button.innerHTML = "Show Editorial >>>";
+        item.hidden = true;
+      }
+    }
+  </script>
+</html>

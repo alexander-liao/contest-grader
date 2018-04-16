@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Programming Competition</title>
+    <script src="/js-sha"></script>
+    <script src="/authjs"></script>
+    <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+  </head>
+
+  <body>
+    <a class="buttonlink" href="/">&lt;&lt;&lt; Back</a><br /><br />
+    <div id="auth_bar">
+      <button class="buttonlink" onclick="sign_in()">&nbsp;&nbsp;&nbsp;Sign In&nbsp;&nbsp;&nbsp;</button>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_up()">&nbsp;&nbsp;&nbsp;Sign Up&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="user_bar" hidden>
+      <a id="home_button" class="buttonlink" href="/account"></a>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_out()">&nbsp;&nbsp;&nbsp;Sign Out&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="sign-in" hidden>
+      <br />
+      <input id="username" style="width:25%%" type="text" placeholder="Username" />
+      <input id="password" style="width:25%%" type="password" placeholder="Password" />
+      <input id="repeated" style="width:25%%" type="password" placeholder="Password Again" hidden />
+      <button class="buttonlink" onclick="auth()">&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;</button>
+    </div>
+    <hr />
+    === Code === <br /><br /><textarea id="code"></textarea><br /><br />
+    Language: <select id="language">%s</select><br /><br />
+    Problem: <select id="problem">%s</select><br /><br />
+    <button class="buttonlink enable" onclick="submit()" disabled>Submit!</button>
+  </body>
+
+  <script type="text/javascript">
+    document.getElementById("problem").value = "%s";
+    document.getElementById("language").value = "Python 3.6.4";
+    function submit() {
+      console.log("Submitted!");
+      var username = decodeURIComponent(document.cookie.match(/grader_cred=[^;]+/)[0].split("=")[1]).split(";")[0];
+      var code = document.getElementById("code").value;
+      var language = document.getElementById("language").value;
+      var problem = document.getElementById("problem").value;
+      var json = {
+        username: username,
+        code: code,
+        language: language,
+        problem: problem
+      };
+      fetch("/%s", {
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+          "contentType": "application/json"
+        },
+        method: "POST",
+        body: JSON.stringify(json)
+      }).then(function(response) {
+        return response.text();
+      }).then(function(text) {
+        location.replace(text);
+      });
+    }
+  </script>
+
+  <style type="text/css">
+    body, button, select, option, input {
+      font-family: monospace;
+    }
+
+    input, textarea {
+      font-size: 12px;
+      width: 80%%;
+    }
+    
+    textarea {
+      height: 20em;
+    }
+  </style>
+</html>
