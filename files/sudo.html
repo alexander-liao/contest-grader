@@ -15,7 +15,7 @@
       <br />
     </div>
     <div id="user_bar" hidden>
-      <a id="home_button"  class="buttonlink enable" disabled href="/account"></a>
+      <a id="home_button"  class="buttonlink enable" disabled href="/"></a>
       &nbsp;
       <button class="buttonlink" onclick="sign_out()">&nbsp;&nbsp;&nbsp;Sign Out&nbsp;&nbsp;&nbsp;</button>
       <br />
@@ -39,18 +39,17 @@
     <button class="buttonlink enable" disabled onclick="set_contest()">Set contest</button>
     <button class="buttonlink enable" disabled onclick="del_problem()">Delete problem</button>
     <br /><br />
-    <button class="buttonlink enable" disabled onclick="contest_mode('stop')">Stop contest</button>
-    <button class="buttonlink enable" disabled onclick="contest_mode('start')">Start contest</button>
+    <button class="buttonlink enable" disabled onclick="contest_mode('stop')">Start Maintenance</button>
+    <button class="buttonlink enable" disabled onclick="contest_mode('start')">Stop Maintenance</button>
     <button class="buttonlink enable" disabled onclick="set_user_points()">Set user points</button>
-    <button class="buttonlink enable" disabled onclick="sudo_enter()">Sudo Enter Submission</button>
     <br /><br /><hr /><br />
     <button class="buttonlink enable" disabled onclick="load_config()">Load contest configuration</button>
     <button class="buttonlink enable" disabled onclick="save_config()">Save contest configuration</button>
     <br /><br />
     <textarea style="width:49%;height:5em;font-family:monospace" id="config" placeholder="Contest Configuration (Problems)"></textarea>
     <br /><br /><hr /><br />
-    <button class="buttonlink enable" disabled onclick="edit_problem('/create_problem/')">Create problem</button>
-    <button class="buttonlink enable" disabled onclick="edit_problem('/write_problem/')">Write problem</button>
+    <button class="buttonlink enable" disabled onclick="edit_problem('/create_problem')">Create problem</button>
+    <button class="buttonlink enable" disabled onclick="edit_problem('/write_problem')">Write problem</button>
     <button class="buttonlink enable" disabled onclick="load_problem()">Load problem</button>
     <br /><br />
     <input type="text" id="title" style="width:49%;font-family:monospace" placeholder="Title" />
@@ -89,19 +88,25 @@
 
   <script type="text/javascript">
     function post_data(url, data, callback) {
+      data = data || {};
+      callback = callback || (e => e);
       fetch(url, {
         method: "POST",
-        body: JSON.stringify(data)
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(addSudoInfo(data))
       })
       .then(function (response) { return response.text(); })
       .then(callback);
     }
-
-    function sudoID() {
+    
+    function addSudoInfo(data) {
       var array = decodeURIComponent(document.cookie.match(/grader_cred=[^;]+/)[0].split("=")[1]).split(";");
-      var username = array[0];
-      var password = array[1];
-      return username + "/" + password;
+      data["username"] = array[0];
+      data["password"] = array[1];
+      return data;
     }
 
     function encode(string) {
@@ -117,35 +122,35 @@
     function run_command() {
       var command = get("cmd");
       if (confirm("Are you sure you wish to run the command '" + command + "'?")) {
-        fetch("/run_command/" + encode(command) + "/" + sudoID());
+        post_data("/run_command",{command: command});
       }
     }
 
     function clear_leaderboard() {
       if (confirm("Are you sure you want to clear the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
-        fetch("/clear_leaderboard/" + sudoID());
+        post_data("/clear_leaderboard", {});
       }
     }
 
     function kick_leaderboard() {
       var name = prompt("Please enter the name of the user you wish to remove");
-      if (confirm("Are you sure you want to kick '" + name + "' from the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
-        fetch("/kick_leaderboard/" + encode(name) + "/" + sudoID());
+      if (name && confirm("Are you sure you want to kick '" + name + "' from the leaderboard? THIS ACTION IS IRREVERSIBLE")) {
+        post_data("/kick_leaderboard", {name: name});
       }
     }
 
     function add_problem() {
       var name = prompt("Please enter the name of the problem you wish to add");
-      if (confirm("Are you sure you want to add '" + name + "' to the contest?")) {
-          fetch("/add_problem/" + encode(name) + "/" + sudoID());
-        }
+      if (name && confirm("Are you sure you want to add '" + name + "' to the contest?")) {
+        post_data("/add_problem", {name: name});
+      }
     }
 
     function rm_problem() {
       var name = prompt("Please enter the name of the problem you wish to remove");
-      if (confirm("Are you sure you want to remove '" + name + "' from the contest?")) {
-          fetch("/rm_problem/" + encode(name) + "/" + sudoID());
-        }
+      if (name && confirm("Are you sure you want to remove '" + name + "' from the contest?")) {
+        post_data("/rm_problem", {name: name});
+      }
     }
     
     function reset_contest() {
@@ -184,25 +189,24 @@
 
     function contest_mode(mode) {
       if (confirm("Are you sure you want to " + mode + " the contest?")) {
-        fetch("/" + mode + "_contest/" + sudoID());
+        post_data("/" + mode + "_contest",{});
       }
     }
 
     function set_user_points() {
       var name = prompt("Please enter the name of the user whose points you wish to modify");
-      var code = prompt("Please enter the points you wish to set for '" + name + "'");
-      if (confirm("Are you sure you want to set points for '" + name + "' to " + code + "?")) {
-        fetch("/set_user_points/" + encode(name) + "/" + code.replace(/\//g, "-") + "/" + sudoID());
+      var prob = name && prompt("Please enter the name of the problem for which you would like to modify " + name + "'s points");
+      var pnts = name && prob && prompt("Please enter the points you wish to set for '" + name + "'");
+      if (name && prob && pnts && confirm("Are you sure you want to set points for '" + name + "' for problem '" + prob + "' to " + pnts + "?")) {
+        post_data("/set_user_points", {name: name, prob: prob, pnts: pnts});
       }
     }
     
-    function sudo_enter() {
-      window.open("/sudo_enter_submission/" + sudoID());
-    }
+
 
     function edit_problem(url) {
       if (confirm("Are you sure you want to create this problem?")) {
-        fetch(url + encode(JSON.stringify({
+        post_data(url,{
           "title": get("title"),
           "id": get("id"),
           "desc": get("desc"),
@@ -213,6 +217,8 @@
           "edit": get("edit"),
           "impl": get("impl"),
           "genr": get("genr"),
+          "ctst": get("ctst"),
+          "edit": get("edit"),
           "impl_filename": get("impl_filename"),
           "genr_filename": get("genr_filename"),
           "impl_precommand": get("impl_precommand"),
@@ -224,17 +230,23 @@
           "pts": get("pts"),
           "tls": get("tls"),
           "tcc": get("tcc"),
-          "tags": get("tags")
-        })) + "/" + sudoID());
+        "tags": get("tags")});
+        
       }
     }
     
     function load_problem() {
       var name = prompt("Please enter the problem ID of the problem you wish to load");
       if (confirm("Are you sure you want to load the problem into the problem creater and overwrite the text areas' contents?")) {
-        fetch("/load_problem/" + encode(name) + "/" + sudoID()).then(function(response) {
-          return response.text();
-        }).then(function(text) {
+        data = {problem:name}
+        fetch("/load_problem", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(addSudoInfo(data))
+      }).then(function (response) { return response.text(); }).then(function(text){
           if (text != "") {
             var data = JSON.parse(text);
             for (var key in data) {

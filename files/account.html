@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Account</title>
+    <script src="/js-sha"></script>
+    <script src="/authjs"></script>
+    <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+  </head>
+  <body style="font-family:monospace">
+    <a class="buttonlink" href="/">&lt;&lt;&lt; Back</a>
+    <br /><br />
+    <div id="auth_bar">
+      <button class="buttonlink" onclick="sign_in()">&nbsp;&nbsp;&nbsp;Sign In&nbsp;&nbsp;&nbsp;</button>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_up()">&nbsp;&nbsp;&nbsp;Sign Up&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="user_bar" hidden>
+      <a id="home_button" class="buttonlink" href="/account"></a>
+      &nbsp;
+      <button class="buttonlink" onclick="sign_out()">&nbsp;&nbsp;&nbsp;Sign Out&nbsp;&nbsp;&nbsp;</button>
+      <br />
+    </div>
+    <div id="sign-in" hidden>
+      <br />
+      <input id="username" style="width:25%%" type="text" placeholder="Username" />
+      <input id="password" style="width:25%%" type="password" placeholder="Password" />
+      <input id="repeated" style="width:25%%" type="password" placeholder="Password Again" hidden />
+      <button class="buttonlink" onclick="auth()">&nbsp;&nbsp;&nbsp;&gt;&gt;&gt;&nbsp;&nbsp;&nbsp;</button>
+    </div>
+    <br /><br />
+    <button class="buttonlink" onclick="change_pass()">
+      Change Password
+    </button>
+    <br /><br />
+    <input id="new_pass" style="width:25%%" type="password" placeholder="Password" />
+    <input id="new_pass_repeat" style="width:25%%" type="password" placeholder="Password Again" />
+    <br /><br />
+    <button class="buttonlink" onclick="change_user()">
+      Change Username
+    </button>
+    <br /><br />
+      <input id="new_user" style="width:25%%" type="text" placeholder="Username" />
+  </body>
+<script type="text/javascript">
+  function post_data(url, data, callback) {
+      data = data || {};
+      callback = callback || (e => e);
+      return fetch(url, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+      .then(function (response) { return response.text(); })
+      .then(callback);
+    }
+  function hash(string) {
+    var obj = new jsSHA("SHA-256", "TEXT");
+    obj.update(string);
+    return obj.getHash("HEX");
+  }
+  function change_pass(){
+    var pass1 = document.getElementById("new_pass").value;
+    var pass2 = document.getElementById("new_pass_repeat").value;
+    if(pass1==pass2 && pass1 != ""){
+      post_data("/change_pass",{username:document.getElementById("home_button").innerHTML.slice(18,-18),password:hash(pass1)});
+      console.log("Password Changed!");
+    }
+    else{
+      console.log("Passwords do not match!");
+      alert("Passwords do not match!");
+    }
+  }
+  function change_user(){
+    post_data("/change_user",{new:document.getElementById("new_user").value.trim(),old:document.getElementById("home_button").innerHTML.trim()}).then(function(text){
+      if(text != ""){
+        console.log("Username changed!");
+      }
+      else{
+        console.log("Not signed in or username exists!");
+      }
+    });
+  }
+</script>
+</html

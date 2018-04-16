@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>To do list...</title>
+  <link rel="stylesheet" href="/stylesheet.css" type="text/css" />
+</head>
+<body>
+  <textarea id="text" style="width:calc(80vw - 6px);height:calc(80vh - 6px)" oninput="update()">%s</textarea>
+  </body>
+<script type="text/javascript">
+  function update(){
+    fetch("/todo/write",{method:"POST",headers: {
+      "Accept": "application/json"},body:JSON.stringify({text:document.getElementById("text").value})});
+  }
+</script>
+</html>

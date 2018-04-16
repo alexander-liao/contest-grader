@@ -14,12 +14,18 @@ p {
 
 a {
   color: #eee;
+  text-decoration: solid #999 underline;
+}
+
+div.problem {
+  
 }
 
 .buttonlink, button {
   background-color: #ccc5;
   color: #eee;
   font-family: monospace;
+  font-size: 100%;
   padding: 6px;
   text-decoration: none;
   border: none;
@@ -34,6 +40,11 @@ a {
   border: none;
 }
 
+button:disabled, button[disabled], button:disabled:hover, button[disabled]:hover {
+  background-color: #ccc3;
+  color: #666;
+}
+
 hr {
   border-color: #666;
 }
@@ -42,15 +53,30 @@ hr {
   border: 1px solid #eee;
 }
 
-table, tr, td, th {
+.leaderboard {
   border: 1px solid #eee;
   border-collapse: collapse;
   padding: 5px;
 }
 
+option {
+  background-color: #222;
+}
+
 input, textarea, select {
   background-color: #5557;
   color: #eee;
+  font-family: monospace;
+  font-size: 100%;
   border: none;
   padding: 3px;
 }
+table{
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid #eee;
+  padding: 8px;
+}
+
